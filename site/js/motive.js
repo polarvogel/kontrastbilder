@@ -1,6 +1,7 @@
 // @ts-check
 
 import liste from "../motive/liste.js";
+import { leseFarben } from "./farben.js";
 
 /**
  * @typedef {Object} MotivEintrag
@@ -11,7 +12,7 @@ import liste from "../motive/liste.js";
  */
 
 /**
- * @typedef {MotivEintrag & { id: string, svg: string }} Motiv
+ * @typedef {MotivEintrag & { id: string, svg: string, farben: import("./farben.js").Farben }} Motiv
  */
 
 /*
@@ -51,10 +52,12 @@ async function ladeMotiv(eintrag) {
     throw new Error(`HTTP ${antwort.status}`);
   }
   const text = await antwort.text();
+  const dokument = new DOMParser().parseFromString(text, "image/svg+xml");
   return {
     ...eintrag,
     id: eintrag.datei.replace(/\.svg$/, ""),
     svg: text.replace(/<\?xml[^>]*\?>/, "").trim(),
+    farben: leseFarben(dokument.documentElement),
   };
 }
 

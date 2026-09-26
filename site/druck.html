@@ -11,7 +11,7 @@
 <body>
   <header class="steuerung">
     <h1>Druckansicht</h1>
-    <p>Alle Motive als Karten für A4. Beim Drucken „Hintergrundgrafiken“ ist nicht nötig, die Motive sind Vektorgrafik.</p>
+    <p>Alle Motive als Karten für A4. Die Option „Hintergrundgrafiken“ im Druckdialog wird nicht gebraucht, die Motive sind Vektorgrafik.</p>
     <form id="optionen">
       <label>
         Karten pro Seite
@@ -25,15 +25,17 @@
       <label>
         Seiten
         <select id="variante">
-          <option value="normal">nur normal</option>
-          <option value="invertiert">nur invertiert</option>
-          <option value="beidseitig">beidseitig (Rückseite invertiert)</option>
+          <option value="normal">schwarz-weiß</option>
+          <option value="invertiert">invertiert</option>
+          <option value="farbe">farbig</option>
+          <option value="beidseitig">beidseitig: vorne schwarz-weiß, hinten invertiert</option>
+          <option value="farbe-sw">beidseitig: vorne farbig, hinten schwarz-weiß</option>
         </select>
       </label>
       <button type="button" id="drucken">Drucken</button>
       <a href="./">Zurück zur Anzeige</a>
     </form>
-    <p class="hinweis" id="hinweis-beidseitig" hidden>Beidseitig: im Druckdialog „beidseitig, lange Kante“ wählen. Auf jede Vorderseite folgt eine Rückseite mit denselben Motiven invertiert, spiegelverkehrt angeordnet, damit sie beim Wenden übereinanderliegen.</p>
+    <p class="hinweis" id="hinweis-beidseitig" hidden>Beidseitig: im Druckdialog „beidseitig, lange Kante“ wählen. Auf jede Vorderseite folgt eine Rückseite mit denselben Motiven, spiegelverkehrt angeordnet, damit sie beim Wenden übereinanderliegen.</p>
   </header>
   <main id="seiten"></main>
 </body>

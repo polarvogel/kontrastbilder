@@ -45,6 +45,9 @@
     <button type="button" id="invertieren" title="Invertieren (I)" aria-label="Invertieren" aria-pressed="false">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" class="gefuellt"/></svg>
     </button>
+    <button type="button" id="farbe" title="Farbe an/aus (C)" aria-label="Farbe" aria-pressed="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7.5" r="4.5"/><circle cx="7.5" cy="15.5" r="4.5"/><circle cx="16.5" cy="15.5" r="4.5"/></svg>
+    </button>
     <button type="button" id="vollbild" title="Vollbild (F)" aria-label="Vollbild">
       <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="4 9 4 4 9 4"/><polyline points="15 4 20 4 20 9"/><polyline points="20 15 20 20 15 20"/><polyline points="9 20 4 20 4 15"/></svg>
     </button>
@@ -75,6 +78,12 @@
       </label>
 
       <label class="zeile">
+        <input type="checkbox" id="e-farbe">
+        <span>Farbe (bis zu 4 Farben pro Bild)</span>
+      </label>
+      <p class="hinweis">Im Farbmodus hat jedes Bild seine eigenen Farben, Invertieren wirkt dann nicht. Einige Bilder bleiben schwarz-weiß.</p>
+
+      <label class="zeile">
         <span>Automatisch weiter</span>
         <select id="e-auto">
           <option value="0">aus</option>
@@ -103,7 +112,7 @@
 
       <p class="hinweis" id="e-wach"></p>
 
-      <p class="hinweis">Tasten: Pfeile wechseln, Leertaste Animation, I invertiert, F Vollbild, + und − Geschwindigkeit.</p>
+      <p class="hinweis">Tasten: Pfeile wechseln, Leertaste Animation, I invertiert, C Farbe, F Vollbild, + und − Geschwindigkeit.</p>
 
       <p class="links">
         <a href="druck.html">Druckansicht</a>

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" data-farbe-h="blau" data-farbe-f1="gelb" data-farbe-d1="schwarz">
   <style>
     /* Farbrollen (siehe README). Die Fallback-Werte gelten nur beim direkten Öffnen der Datei. */
     .v { fill: var(--v, #000); }
@@ -6,12 +6,14 @@
     .f1 { fill: var(--f1, var(--v, #000)); }
     .f2 { fill: var(--f2, var(--v, #000)); }
     .f3 { fill: var(--f3, var(--v, #000)); }
-    .vl, .hl, .f1l, .f2l, .f3l { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .d1 { fill: var(--d1, var(--h, #fff)); }
+    .vl, .hl, .f1l, .f2l, .f3l, .d1l { fill: none; stroke-linecap: round; stroke-linejoin: round; }
     .vl { stroke: var(--v, #000); }
     .hl { stroke: var(--h, #fff); }
     .f1l { stroke: var(--f1, var(--v, #000)); }
     .f2l { stroke: var(--f2, var(--v, #000)); }
     .f3l { stroke: var(--f3, var(--v, #000)); }
+    .d1l { stroke: var(--d1, var(--h, #fff)); }
 
     /* Strahlenkranz dreht sich einmal in 48 s */
     .strahlen { transform-origin: 200px 200px; animation: drehen 48s linear infinite; }
@@ -38,7 +40,7 @@
 
   <!-- Kern mit Gesicht als Aussparung -->
   <circle class="f1" cx="200" cy="200" r="66"/>
-  <circle class="h" cx="176" cy="186" r="11"/>
-  <circle class="h" cx="224" cy="186" r="11"/>
-  <path class="hl" stroke-width="10" d="M174 218 Q200 242 226 218"/>
+  <circle class="d1" cx="176" cy="186" r="11"/>
+  <circle class="d1" cx="224" cy="186" r="11"/>
+  <path class="d1l" stroke-width="10" d="M174 218 Q200 242 226 218"/>
 </svg>

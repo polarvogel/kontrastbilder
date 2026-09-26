@@ -1,11 +1,12 @@
 // @ts-check
 
 import { ladeMotive, erzeugeMotiv, STIL_STATISCH } from "./motive.js";
+import { PALETTE, ROLLEN as FARBROLLEN, MAX_FARBEN, wirksameFarben, kontrast, setzeFarben } from "./farben.js";
 
 /** @typedef {import("./motive.js").Motiv} Motiv */
 /** @typedef {{ art: "fehler" | "hinweis" | "ok", text: string }} Befund */
 
-const ROLLEN = ["v", "h", "f1", "f2", "f3", "vl", "hl", "f1l", "f2l", "f3l"];
+const ROLLEN = ["v", "h", "f1", "f2", "f3", "d1", "vl", "hl", "f1l", "f2l", "f3l", "d1l"];
 const ROLLEN_SELEKTOR = ROLLEN.map((r) => `.${r}`).join(",");
 const FORMEN = "rect,circle,ellipse,path,polygon,polyline,line";
 
@@ -119,6 +120,61 @@ function pruefeQuelltext(motiv) {
     fehler(`CSS nicht lesbar: ${grund}`);
   }
 
+  befunde.push(...pruefeFarben(motiv, doc));
+  return befunde;
+}
+
+/** Farbname zu einem Hexwert, für lesbare Meldungen */
+const NAME = Object.fromEntries(Object.entries(PALETTE).map(([name, hex]) => [hex, name]));
+
+/**
+ * Prüft die Farbangaben für den Farbmodus: bekannte Rollen und Farbnamen,
+ * höchstens MAX_FARBEN verschiedene Farben unter den tatsächlich benutzten Rollen,
+ * und ob sich farbige Flächen hell/dunkel vom Hintergrund abheben.
+ *
+ * @param {Motiv} motiv
+ * @param {Document} doc
+ * @returns {Befund[]}
+ */
+function pruefeFarben(motiv, doc) {
+  /** @type {Befund[]} */
+  const befunde = [];
+  for (const [rolle, name] of Object.entries(motiv.farben)) {
+    if (!FARBROLLEN.includes(rolle)) {
+      befunde.push({ art: "fehler", text: `data-farbe-${rolle}: unbekannte Rolle. Erlaubt: ${FARBROLLEN.join(", ")}.` });
+    } else if (!name || !(name in PALETTE)) {
+      befunde.push({ art: "fehler", text: `data-farbe-${rolle}="${name}": unbekannte Farbe. Erlaubt: ${Object.keys(PALETTE).join(", ")}.` });
+    }
+  }
+  if (!Object.keys(motiv.farben).length) {
+    befunde.push({ art: "ok", text: "Farbmodus: keine eigenen Farben, bleibt schwarz-weiß." });
+    return befunde;
+  }
+
+  /** @type {Set<string>} */
+  const benutzt = new Set();
+  for (const el of doc.querySelectorAll("[class]")) {
+    for (const klasse of el.classList) {
+      const rolle = klasse.replace(/l$/, "");
+      if (FARBROLLEN.includes(rolle)) {
+        benutzt.add(rolle);
+      }
+    }
+  }
+  const wirksam = wirksameFarben(motiv.farben);
+  const verschieden = [...new Set([...benutzt].map((rolle) => wirksam[rolle]))];
+  const liste = verschieden.map((hex) => NAME[hex] ?? hex).join(", ");
+  if (verschieden.length > MAX_FARBEN) {
+    befunde.push({ art: "fehler", text: `Farbmodus: ${verschieden.length} Farben (${liste}), erlaubt sind ${MAX_FARBEN}.` });
+  } else {
+    befunde.push({ art: "ok", text: `Farbmodus: ${verschieden.length} Farben (${liste}).` });
+  }
+  for (const hex of verschieden) {
+    const k = kontrast(hex, wirksam.h);
+    if (hex !== wirksam.h && k < 1.5) {
+      befunde.push({ art: "hinweis", text: `Farbmodus: ${NAME[hex] ?? hex} hebt sich kaum vom Hintergrund ab (Kontrast ${k.toFixed(1)}).` });
+    }
+  }
   return befunde;
 }
 
@@ -145,7 +201,7 @@ function messeAusdehnung(host) {
       continue;
     }
     const r = el.getBoundingClientRect();
-    const strich = el.closest(".vl,.hl,.f1l,.f2l,.f3l") ? parseFloat(getComputedStyle(el).strokeWidth) || 0 : 0;
+    const strich = el.closest(".vl,.hl,.f1l,.f2l,.f3l,.d1l") ? parseFloat(getComputedStyle(el).strokeWidth) || 0 : 0;
     const rand = strich * 0.5 * skala;
     links = Math.min(links, r.left - rand);
     oben = Math.min(oben, r.top - rand);
@@ -224,9 +280,12 @@ async function pruefeMotiv(motiv) {
 
   const ruhe = erzeugeMotiv(motiv, STIL_STATISCH);
   const ende = erzeugeMotiv(motiv);
+  const farbig = erzeugeMotiv(motiv);
+  setzeFarben(farbig, motiv.farben);
   kacheln.append(
     kachel("Normal, animiert", erzeugeMotiv(motiv)),
     kachel("Invertiert, animiert", erzeugeMotiv(motiv), "invertiert"),
+    kachel("Farbmodus, animiert", farbig),
     kachel("Ruhepose (Druck)", ruhe),
     kachel("Endpose der Animation", ende),
   );

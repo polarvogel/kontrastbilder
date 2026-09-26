@@ -121,6 +121,11 @@ body.leiste-sichtbar .leiste {
   background: rgb(255 255 255 / 0.14);
 }
 
+.leiste button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
 .leiste button:focus-visible,
 .ende button:focus-visible,
 .einstellungen :focus-visible {
@@ -141,6 +146,19 @@ body.leiste-sichtbar .leiste {
 .leiste svg .gefuellt,
 .leiste .symbol-play polygon {
   fill: currentColor;
+}
+
+/* Farbknopf zeigt im Farbmodus echte Farben */
+#farbe[aria-pressed="true"] circle:nth-child(1) {
+  fill: #e3261c;
+}
+
+#farbe[aria-pressed="true"] circle:nth-child(2) {
+  fill: #ffcc00;
+}
+
+#farbe[aria-pressed="true"] circle:nth-child(3) {
+  fill: #1f5fd6;
 }
 
 #animation[aria-pressed="true"] .symbol-play,

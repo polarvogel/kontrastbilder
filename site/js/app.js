@@ -3,6 +3,7 @@
 import { ladeMotive, erzeugeMotiv, steuereAnimation } from "./motive.js";
 import * as speicher from "./einstellungen.js";
 import * as wachhalten from "./wachhalten.js";
+import { setzeFarben } from "./farben.js";
 
 /** @typedef {import("./motive.js").Motiv} Motiv */
 
@@ -35,7 +36,10 @@ const knopf = {
   zurueck: element("zurueck"),
   weiter: element("weiter"),
   animation: element("animation"),
+  /** @type {HTMLButtonElement} */
   invertieren: element("invertieren"),
+  /** @type {HTMLButtonElement} */
+  farbe: element("farbe"),
   vollbild: element("vollbild"),
   menue: element("menue"),
   fortsetzen: element("fortsetzen"),
@@ -50,6 +54,8 @@ const feld = {
   tempoWert: element("e-tempo-wert"),
   /** @type {HTMLInputElement} */
   invertiert: element("e-invertiert"),
+  /** @type {HTMLInputElement} */
+  farbe: element("e-farbe"),
   /** @type {HTMLSelectElement} */
   auto: element("e-auto"),
   /** @type {HTMLSelectElement} */
@@ -78,8 +84,14 @@ const warte = (/** @type {number} */ ms) => new Promise((fertig) => setTimeout(f
 
 /* ---------- Motive anzeigen ---------- */
 
-/** @param {Motiv} motiv */
+/**
+ * Zeigt ein Motiv. Im Farbmodus werden vorher seine Farben auf der ganzen Seite
+ * gesetzt, damit auch der Hintergrund außerhalb des quadratischen Motivs passt.
+ *
+ * @param {Motiv} motiv
+ */
 function setzeMotiv(motiv) {
+  setzeFarben(document.documentElement, e.farbe ? motiv.farben : null);
   buehne.replaceChildren(erzeugeMotiv(motiv));
   titel.textContent = `${motiv.name} · ${index + 1}/${motive.length}`;
   aktualisiereAnimation();
@@ -132,6 +144,9 @@ function aktualisiereAnimation() {
 function aktualisiereDarstellung() {
   document.documentElement.classList.toggle("invertiert", e.invertiert);
   knopf.invertieren.setAttribute("aria-pressed", String(e.invertiert));
+  knopf.invertieren.disabled = e.farbe;
+  knopf.invertieren.title = e.farbe ? "Invertieren (im Farbmodus ohne Wirkung)" : "Invertieren (I)";
+  knopf.farbe.setAttribute("aria-pressed", String(e.farbe));
   aktualisiereAnimation();
   aktualisiereFormular();
 }
@@ -150,9 +165,25 @@ function schalteAnimation() {
 }
 
 function schalteInvertierung() {
+  if (e.farbe) {
+    return;
+  }
   aendere((e) => {
     e.invertiert = !e.invertiert;
   });
+}
+
+/**
+ * Farbmodus an/aus. Das aktuelle Motiv wird dabei aus- und wieder eingeblendet,
+ * damit die Farben nicht schlagartig umspringen.
+ *
+ * @param {boolean} [an]
+ */
+function schalteFarbe(an = !e.farbe) {
+  aendere((e) => {
+    e.farbe = an;
+  });
+  wechsleZu(index);
 }
 
 /** @param {number} richtung +1 schneller, -1 langsamer */
@@ -284,6 +315,10 @@ function taste(ereignis) {
     case "I":
       schalteInvertierung();
       break;
+    case "c":
+    case "C":
+      schalteFarbe();
+      break;
     case "f":
     case "F":
       schalteVollbild();
@@ -383,6 +418,8 @@ function aktualisiereFormular() {
   feld.tempo.value = String(stufe < 0 ? 2 : stufe);
   feld.tempoWert.value = `${String(e.tempo).replace(".", ",")}×`;
   feld.invertiert.checked = e.invertiert;
+  feld.invertiert.disabled = e.farbe;
+  feld.farbe.checked = e.farbe;
   feld.auto.value = String(e.autoWeiter);
   feld.sitzung.value = String(e.sitzung);
   feld.touch.checked = e.touchNavigation;
@@ -411,6 +448,7 @@ function verbindeFormular() {
       e.invertiert = feld.invertiert.checked;
     }),
   );
+  feld.farbe.addEventListener("change", () => schalteFarbe(feld.farbe.checked));
   feld.auto.addEventListener("change", () => {
     aendere((e) => {
       e.autoWeiter = Number(feld.auto.value);
@@ -438,6 +476,7 @@ function verbindeBedienung() {
   knopf.weiter.addEventListener("click", weiter);
   knopf.animation.addEventListener("click", schalteAnimation);
   knopf.invertieren.addEventListener("click", schalteInvertierung);
+  knopf.farbe.addEventListener("click", () => schalteFarbe());
   knopf.vollbild.addEventListener("click", schalteVollbild);
   knopf.menue.addEventListener("click", () => {
     aktualisiereFormular();

@@ -1,8 +1,22 @@
 // @ts-check
 
 import { ladeMotive, erzeugeMotiv, STIL_STATISCH } from "./motive.js";
+import { setzeFarben } from "./farben.js";
 
 /** @typedef {import("./motive.js").Motiv} Motiv */
+/** @typedef {"normal" | "invertiert" | "farbe"} Art */
+
+/*
+ * Vorder- und Rückseite je Auswahl. Ohne Rückseite wird nur einseitig gedruckt.
+ */
+/** @type {Record<string, { vorne: Art, hinten: Art | null }>} */
+const VARIANTEN = {
+  normal: { vorne: "normal", hinten: null },
+  invertiert: { vorne: "invertiert", hinten: null },
+  farbe: { vorne: "farbe", hinten: null },
+  beidseitig: { vorne: "normal", hinten: "invertiert" },
+  "farbe-sw": { vorne: "farbe", hinten: "normal" },
+};
 
 /*
  * Kartengröße und Raster je Anzahl pro Seite. Die Druckfläche ist 190 × 277 mm
@@ -25,28 +39,32 @@ let motive = [];
 
 /**
  * @param {Motiv | null} motiv
- * @param {boolean} invertiert
+ * @param {Art} art
  */
-function karte(motiv, invertiert) {
+function karte(motiv, art) {
   const el = document.createElement("div");
   el.className = "karte";
   if (!motiv) {
     el.classList.add("leer");
     return el;
   }
-  el.classList.toggle("invertiert", invertiert);
-  el.append(erzeugeMotiv(motiv, STIL_STATISCH));
+  el.classList.toggle("invertiert", art === "invertiert");
+  const host = erzeugeMotiv(motiv, STIL_STATISCH);
+  if (art === "farbe") {
+    setzeFarben(host, motiv.farben);
+  }
+  el.append(host);
   return el;
 }
 
 /**
  * @param {(Motiv | null)[]} gruppe
- * @param {boolean} invertiert
+ * @param {Art} art
  */
-function seite(gruppe, invertiert) {
+function seite(gruppe, art) {
   const el = document.createElement("section");
   el.className = "seite";
-  el.append(...gruppe.map((m) => karte(m, invertiert)));
+  el.append(...gruppe.map((m) => karte(m, art)));
   return el;
 }
 
@@ -72,7 +90,8 @@ function aufbauen() {
   const raster = RASTER[anzahl];
   document.documentElement.style.setProperty("--spalten", String(raster.spalten));
   document.documentElement.style.setProperty("--karte", raster.karte);
-  hinweis.hidden = variante.value !== "beidseitig";
+  const { vorne, hinten } = VARIANTEN[variante.value] ?? VARIANTEN.normal;
+  hinweis.hidden = !hinten;
 
   /** @type {HTMLElement[]} */
   const neu = [];
@@ -82,19 +101,31 @@ function aufbauen() {
     while (gruppe.length < anzahl) {
       gruppe.push(null);
     }
-    if (variante.value === "invertiert") {
-      neu.push(seite(gruppe, true));
-    } else {
-      neu.push(seite(gruppe, false));
-    }
-    if (variante.value === "beidseitig") {
-      neu.push(seite(gespiegelt(gruppe, raster.spalten), true));
+    neu.push(seite(gruppe, vorne));
+    if (hinten) {
+      neu.push(seite(gespiegelt(gruppe, raster.spalten), hinten));
     }
   }
   seiten.replaceChildren(...neu);
 }
 
+/*
+ * Voreinstellung per URL, z. B. druck.html?variante=farbe&pro-seite=6
+ */
+function uebernehmeUrl() {
+  const parameter = new URLSearchParams(location.search);
+  const wunschVariante = parameter.get("variante");
+  const wunschAnzahl = parameter.get("pro-seite");
+  if (wunschVariante && wunschVariante in VARIANTEN) {
+    variante.value = wunschVariante;
+  }
+  if (wunschAnzahl && wunschAnzahl in RASTER) {
+    proSeite.value = wunschAnzahl;
+  }
+}
+
 async function start() {
+  uebernehmeUrl();
   motive = await ladeMotive();
   proSeite.addEventListener("change", aufbauen);
   variante.addEventListener("change", aufbauen);

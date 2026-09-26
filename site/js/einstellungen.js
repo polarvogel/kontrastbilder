@@ -5,6 +5,7 @@
  * @property {boolean | null} animation  null = Systemeinstellung (prefers-reduced-motion)
  * @property {number} tempo              Faktor auf alle Animationen
  * @property {boolean} invertiert
+ * @property {boolean} farbe             Farbmodus: jedes Motiv mit seinen eigenen Farben
  * @property {number} autoWeiter         Sekunden bis zum nächsten Motiv, 0 = aus (60, 180, 300, 600)
  * @property {number} sitzung            Minuten bis zum Ausblenden, 0 = aus
  * @property {boolean} touchNavigation   Tippen links/rechts und Wischen wechselt das Motiv
@@ -30,6 +31,7 @@ function standard() {
     animation: null,
     tempo: 1,
     invertiert: false,
+    farbe: false,
     autoWeiter: 0,
     sitzung: 0,
     touchNavigation: false,

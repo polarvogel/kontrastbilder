@@ -30,6 +30,7 @@ const SEITE = [
   "js/motive.js",
   "js/einstellungen.js",
   "js/wachhalten.js",
+  "js/farben.js",
   "js/druck.js",
   "js/pruefen.js",
   "motive/liste.js",
