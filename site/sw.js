@@ -24,6 +24,7 @@ const SEITE = [
   "index.html",
   "druck.html",
   "pruefen.html",
+  "rechtliches.html",
   "css/app.css",
   "css/druck.css",
   "css/pruefen.css",

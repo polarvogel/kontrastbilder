@@ -44,3 +44,5 @@ python3 werkzeuge/pruefen.py klang [id|datei.json]
 - Animationen: nur `transform`, langsam (Zyklen 6–20 s, Drehungen 30–60 s), kleine Ausschläge, nahtlos.
 - Nach Änderungen an Motiven oder Klängen: `pruefen.py` für alle ausführen, 0 Fehler.
 - Nach Änderungen an JS: Seite mit `werkzeuge/server.py` öffnen und die Browserkonsole auf Fehler prüfen.
+- Veröffentlichung: Push auf `main` startet `.github/workflows/pages.yml` (erst Prüfung, dann GitHub Pages). Nur `site/` wird veröffentlicht.
+- Keine persönlichen Daten, lokalen Pfade oder Zugangsdaten ins Repo schreiben.

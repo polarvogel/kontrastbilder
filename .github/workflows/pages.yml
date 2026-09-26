@@ -1,0 +1,63 @@
+# Prüft alle Motive und Klänge und veröffentlicht danach site/ auf GitHub Pages.
+# Läuft bei jedem Push auf main. Bei Pull Requests wird nur geprüft, nicht veröffentlicht.
+name: Prüfen und veröffentlichen
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pruefen:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      # Solange Impressum oder Datenschutz Platzhalter enthalten, wird nichts veröffentlicht.
+      - name: Platzhalter in rechtlichen Angaben
+        run: |
+          if grep -rn "PLATZHALTER" site/; then
+            echo "::error::site/rechtliches.html enthält noch Platzhalter. Erst ausfüllen, dann veröffentlichen."
+            exit 1
+          fi
+
+      # Ubuntu 24.04 sperrt per AppArmor die Namensräume, die die Chrome-Sandbox braucht.
+      - name: Chrome-Sandbox erlauben
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
+      - name: Motive prüfen
+        env:
+          CHROMIUM: google-chrome
+        run: python3 werkzeuge/pruefen.py motiv
+
+      - name: Klänge prüfen
+        env:
+          CHROMIUM: google-chrome
+        run: python3 werkzeuge/pruefen.py klang
+
+  veroeffentlichen:
+    needs: pruefen
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.bereitstellung.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+      - id: bereitstellung
+        uses: actions/deploy-pages@v5

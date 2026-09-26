@@ -294,7 +294,8 @@ body.leiste-sichtbar .ende {
 
 .einstellungen .links {
   display: flex;
-  gap: 1.5em;
+  flex-wrap: wrap;
+  gap: 0.6em 1.5em;
   margin: 1em 0;
 }
 

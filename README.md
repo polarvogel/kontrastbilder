@@ -194,4 +194,40 @@ Die Pegel der vorhandenen Klänge sind so eingestellt, dass alle etwa gleich lau
 
 Der Service Worker speichert Seiten, Code und alle Motive aus `liste.js` beim ersten Besuch. Er ist nur über `https` oder `localhost` aktiv. Neue JS- oder CSS-Dateien in `SEITE` in `site/sw.js` eintragen, Motive und Klänge kommen automatisch dazu.
 
-GitHub Pages: folgt in Schritt 4.
+### GitHub Pages
+
+Der Workflow `.github/workflows/pages.yml` prüft bei jedem Push auf `main` alle Motive und Klänge (`werkzeuge/pruefen.py` mit Chrome auf dem Runner) und veröffentlicht danach den Ordner `site/`. Bei Pull Requests wird nur geprüft. Solange `site/rechtliches.html` Platzhalter enthält, bricht die Prüfung ab und nichts wird veröffentlicht.
+
+Einmalig einrichten (Repo-Name hier `kontrastbilder`):
+
+```bash
+gh auth login
+```
+
+```bash
+gh repo create kontrastbilder --public --source . --remote origin
+```
+
+```bash
+gh api -X POST repos/{owner}/kontrastbilder/pages -f build_type=workflow
+```
+
+```bash
+git push -u origin main
+```
+
+Alternativ zum dritten Befehl: im Repo unter Settings → Pages bei „Source“ „GitHub Actions“ wählen. Die Seite liegt danach unter `https://<benutzername>.github.io/kontrastbilder/`. Alle Pfade in der Seite sind relativ, der Unterpfad funktioniert.
+
+Weiterarbeiten: ändern, `python3 werkzeuge/pruefen.py motiv` bzw. `klang` ausführen, committen, pushen. Die Veröffentlichung läuft automatisch. Auf einem anderen Rechner: `gh repo clone <benutzername>/kontrastbilder`. Der Ordner `.claude/` (lokale Sitzungsnotizen) ist per `.gitignore` ausgeschlossen.
+
+Mit GitHub Free geht Pages nur aus öffentlichen Repos. Die Seite selbst ist bei GitHub Pages immer öffentlich.
+
+## Rechtliches
+
+Keine Rechtsberatung, sondern eine Einschätzung nach den Quellen, die beim Einrichten recherchiert wurden.
+
+- **Impressum:** Eine öffentlich erreichbare Seite dient nicht mehr „ausschließlich persönlichen oder familiären Zwecken“. Nach § 18 Abs. 1 Medienstaatsvertrag sind dann Name und Anschrift anzugeben (kein Postfach), auch ohne Werbung und Gewinnabsicht. § 5 DDG (geschäftsmäßige Angebote) greift bei einer rein privaten, werbefreien Seite dagegen nicht. Die Angaben gehören in `site/rechtliches.html`.
+- **Datenschutz:** Die Seite selbst erhebt nichts, lädt nichts von Dritten und setzt keine Cookies. Einstellungen und Offline-Cache bleiben im Gerät und sind für die gewünschte Funktion nötig (§ 25 Abs. 2 Nr. 2 TDDDG). GitHub protokolliert bei jedem Aufruf die IP-Adresse. Das steht in den Datenschutzhinweisen in `site/rechtliches.html`.
+- **Urheberrecht:** Motive, Klänge, Icons und Code sind für dieses Projekt neu erstellt, es gibt keine fremden Bibliotheken, Schriften oder Bilder. Kontrastkarten als Stil sind nicht geschützt, konkrete fremde Motive wurden nicht übernommen. Der Rosa-Rausch-Filter (Paul Kellet) und die Filterformeln (Audio EQ Cookbook) sind veröffentlichte mathematische Verfahren, die Quelle steht jeweils im Code.
+- **Lizenz:** Ohne Lizenzdatei gilt „alle Rechte vorbehalten“. Andere dürfen den Code auf GitHub ansehen, aber nicht weiterverwenden.
+- **Nicht ins Repo:** persönliche Daten, lokale Pfade, Zugangsdaten. Commits laufen über die GitHub-noreply-Adresse.
