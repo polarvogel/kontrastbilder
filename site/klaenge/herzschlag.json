@@ -8,7 +8,7 @@
     {
       "ereignisse": { "abstand": 0.9, "streuung": 0.02 },
       "muster": [[0, 1, 1], [0.32, 0.7, 1.12]],
-      "pegel": 0.3,
+      "pegel": 0.4,
       "filter": [{ "typ": "tiefpass", "frequenz": 400 }],
       "stimme": {
         "art": "ton",

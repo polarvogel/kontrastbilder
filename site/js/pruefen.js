@@ -1,6 +1,7 @@
 // @ts-check
 
-import { ladeMotive, erzeugeMotiv, STIL_STATISCH } from "./motive.js";
+import { ladeMotive, ladeMotiv, erzeugeMotiv, STIL_STATISCH } from "./motive.js";
+import motivListe from "../motive/liste.js";
 import { PALETTE, ROLLEN as FARBROLLEN, MAX_FARBEN, wirksameFarben, kontrast, setzeFarben } from "./farben.js";
 
 /** @typedef {import("./motive.js").Motiv} Motiv */
@@ -167,7 +168,7 @@ function pruefeFarben(motiv, doc) {
   if (verschieden.length > MAX_FARBEN) {
     befunde.push({ art: "fehler", text: `Farbmodus: ${verschieden.length} Farben (${liste}), erlaubt sind ${MAX_FARBEN}.` });
   } else {
-    befunde.push({ art: "ok", text: `Farbmodus: ${verschieden.length} Farben (${liste}).` });
+    befunde.push({ art: "ok", text: `Farbmodus: ${verschieden.length} ${verschieden.length === 1 ? "Farbe" : "Farben"} (${liste}).` });
   }
   for (const hex of verschieden) {
     const k = kontrast(hex, wirksam.h);
@@ -313,22 +314,47 @@ async function pruefeMotiv(motiv) {
 }
 
 /*
- * Optional nur ein Motiv prüfen und größer zeigen: pruefen.html?motiv=elefant
+ * Optional nur ein Motiv prüfen und größer zeigen:
+ *   pruefen.html?motiv=elefant       Motiv aus der Liste
+ *   pruefen.html?datei=entwurf.svg   Datei in motive/, auch wenn sie noch nicht in der Liste steht
+ * Die Befunde stehen zusätzlich als Text in #ergebnis-text (für werkzeuge/pruefen.sh).
  */
 async function start() {
-  const auswahl = new URLSearchParams(location.search).get("motiv");
-  const motive = (await ladeMotive()).filter((m) => !auswahl || m.id === auswahl);
-  if (auswahl) {
-    document.documentElement.style.setProperty("--kachel", "min(360px, 44vw)");
-  }
+  const parameter = new URLSearchParams(location.search);
+  const auswahl = parameter.get("motiv");
+  const datei = parameter.get("datei");
+  /** @type {Motiv[]} */
+  let motive;
+  /** @type {string[]} */
+  const zeilen = [];
   let fehler = 0;
   let hinweise = 0;
+  if (datei) {
+    motive = [await ladeMotiv({ datei, name: datei })];
+    if (!motivListe.some((m) => m.datei === datei)) {
+      zeilen.push(`${datei}: HINWEIS Noch nicht in motive/liste.js eingetragen.`);
+      hinweise += 1;
+    }
+  } else {
+    motive = (await ladeMotive()).filter((m) => !auswahl || m.id === auswahl);
+    if (auswahl && !motive.length) {
+      zeilen.push(`${auswahl}: FEHLER Motiv nicht in motive/liste.js gefunden.`);
+      fehler += 1;
+    }
+  }
+  if (auswahl || datei) {
+    document.documentElement.style.setProperty("--kachel", "min(290px, 44vw)");
+  }
   for (const motiv of motive) {
     const befunde = await pruefeMotiv(motiv);
     fehler += befunde.filter((b) => b.art === "fehler").length;
     hinweise += befunde.filter((b) => b.art === "hinweis").length;
+    zeilen.push(...befunde.map((b) => `${motiv.datei}: ${b.art.toUpperCase()} ${b.text}`));
   }
   zusammenfassung.textContent = `${motive.length} Motive geprüft: ${fehler} Fehler, ${hinweise} Hinweise.`;
+  zeilen.push(`ERGEBNIS: ${motive.length} Motive, ${fehler} Fehler, ${hinweise} Hinweise`);
+  const text = /** @type {HTMLElement} */ (document.getElementById("ergebnis-text"));
+  text.textContent = zeilen.join("\n");
   document.body.dataset.fehler = String(fehler);
 }
 

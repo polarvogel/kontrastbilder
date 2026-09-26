@@ -43,10 +43,12 @@ export async function ladeMotive() {
 }
 
 /**
+ * Lädt ein einzelnes Motiv, auch eines, das noch nicht in der Liste steht.
+ *
  * @param {MotivEintrag} eintrag
  * @returns {Promise<Motiv>}
  */
-async function ladeMotiv(eintrag) {
+export async function ladeMotiv(eintrag) {
   const antwort = await fetch(`motive/${eintrag.datei}`);
   if (!antwort.ok) {
     throw new Error(`HTTP ${antwort.status}`);

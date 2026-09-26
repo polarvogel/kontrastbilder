@@ -234,7 +234,7 @@ function starteKlang() {
     return;
   }
   klang.setzeLautstaerke(e.lautstaerke);
-  klang.spiele(auswahl.beschreibung).catch((fehler) => console.warn("Klang nicht gestartet:", fehler));
+  klang.spiele(auswahl.beschreibung, auswahl.name).catch((fehler) => console.warn("Klang nicht gestartet:", fehler));
 }
 
 /** @param {boolean} [an] */
@@ -246,6 +246,27 @@ function schalteTon(an = !e.ton) {
     starteKlang();
   } else {
     klang.stoppe();
+  }
+}
+
+/*
+ * Play/Pause auf dem Sperrbildschirm, in der Benachrichtigung oder per Medientaste.
+ */
+function verbindeMediensteuerung() {
+  if (!("mediaSession" in navigator)) {
+    return;
+  }
+  const aktionen = /** @type {[MediaSessionAction, () => void][]} */ ([
+    ["play", () => schalteTon(true)],
+    ["pause", () => schalteTon(false)],
+    ["stop", () => schalteTon(false)],
+  ]);
+  for (const [aktion, handler] of aktionen) {
+    try {
+      navigator.mediaSession.setActionHandler(aktion, handler);
+    } catch {
+      // Aktion wird von diesem Browser nicht unterstützt.
+    }
   }
 }
 
@@ -552,6 +573,7 @@ function verbindeBedienung() {
   knopf.invertieren.addEventListener("click", schalteInvertierung);
   knopf.farbe.addEventListener("click", () => schalteFarbe());
   knopf.ton.addEventListener("click", () => schalteTon());
+  verbindeMediensteuerung();
   window.addEventListener("pointerdown", ersteBedienung, { capture: true });
   window.addEventListener("keydown", ersteBedienung, { capture: true });
   knopf.vollbild.addEventListener("click", schalteVollbild);

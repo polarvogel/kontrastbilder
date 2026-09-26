@@ -17,7 +17,7 @@ import klaenge from "./klaenge/liste.js";
 
 const sw = /** @type {ServiceWorkerGlobalScope} */ (/** @type {unknown} */ (self));
 
-const CACHE = "kontrastbilder-v1";
+const CACHE = "kontrastbilder-v2";
 
 const SEITE = [
   "./",
@@ -33,7 +33,7 @@ const SEITE = [
   "js/wachhalten.js",
   "js/farben.js",
   "js/klang.js",
-  "js/rauschen-worklet.js",
+  "js/klang-worklet.js",
   "js/druck.js",
   "js/pruefen.js",
   "motive/liste.js",
@@ -72,11 +72,15 @@ sw.addEventListener("fetch", (ereignis) => {
   ereignis.respondWith(netzDannCache(anfrage));
 });
 
+/*
+ * "no-cache" fragt immer beim Server nach (bei unveränderter Datei nur kurz mit 304).
+ * Sonst liefert der HTTP-Cache des Browsers nach Änderungen manchmal alte Dateien.
+ */
 /** @param {Request} anfrage */
 async function netzDannCache(anfrage) {
   const cache = await caches.open(CACHE);
   try {
-    const antwort = await fetch(anfrage);
+    const antwort = await fetch(anfrage.url, { cache: "no-cache" });
     if (antwort.ok) {
       cache.put(anfrage, antwort.clone());
     }

@@ -1,2 +1,5 @@
 # Session-Recovery, Arbeitsdateien von Claude
 .claude/
+
+# Python-Zwischendateien
+__pycache__/

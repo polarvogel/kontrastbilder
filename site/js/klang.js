@@ -7,9 +7,11 @@ import liste from "../klaenge/liste.js";
  * Web-Audio-Graphen. Nichts ist aufgenommen, alles entsteht beim Abspielen.
  *
  * Eine Beschreibung besteht aus Schichten. Jede Schicht ist entweder
- *   - Dauerrauschen ("rauschen": weiss | rosa | braun), live im AudioWorklet erzeugt, oder
+ *   - Dauerrauschen ("rauschen": weiss | rosa | braun) oder
  *   - eine Folge von Ereignissen ("ereignisse"), jedes spielt eine kurze Stimme:
  *     einen Ton aus Teiltönen oder einen gefilterten Rauschstoß.
+ * Beides entsteht im AudioWorklet (js/klang-worklet.js), also im Audio-Thread. Dadurch
+ * läuft der Klang auch weiter, wenn der Browser im Hintergrund Timer anhält.
  * Jede Schicht hat einen Pegel, optional feste Filter und langsame Schwankungen ("wellen")
  * von Pegel oder Filterfrequenz. Das Format ist im README beschrieben.
  */
@@ -53,7 +55,7 @@ import liste from "../klaenge/liste.js";
  * @typedef {KlangEintrag & { id: string, beschreibung: Beschreibung }} Klang
  */
 
-/* Planung: so weit im Voraus werden Ereignisse eingeplant. Groß genug für gedrosselte Timer. */
+/* Vorlauf für zufällige Schwankungen, die der Haupt-Thread einplant */
 const VORLAUF = 1.5;
 const TAKT_MS = 250;
 const EINBLENDEN = 2;
@@ -92,48 +94,23 @@ export async function ladeKlaenge() {
 const worklets = new WeakMap();
 
 /**
- * Lädt den Rauschgenerator einmal pro AudioContext.
+ * Lädt die Klangerzeugung im Audio-Thread einmal pro AudioContext.
  *
  * @param {BaseAudioContext} ctx
  */
 export function ladeWorklet(ctx) {
   let laden = worklets.get(ctx);
   if (!laden) {
-    laden = ctx.audioWorklet.addModule(new URL("./rauschen-worklet.js", import.meta.url));
+    laden = ctx.audioWorklet.addModule(new URL("./klang-worklet.js", import.meta.url));
     worklets.set(ctx, laden);
   }
   return laden;
-}
-
-/** @type {WeakMap<BaseAudioContext, AudioBuffer>} */
-const rauschPuffer = new WeakMap();
-
-/**
- * Kurzer Puffer mit weißem Rauschen für Rauschstöße (z. B. Regentropfen).
- * Wird einmal beim Start zufällig erzeugt, jeder Stoß beginnt an zufälliger Stelle.
- *
- * @param {BaseAudioContext} ctx
- */
-function weissesRauschen(ctx) {
-  let puffer = rauschPuffer.get(ctx);
-  if (!puffer) {
-    puffer = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
-    const daten = puffer.getChannelData(0);
-    for (let i = 0; i < daten.length; i += 1) {
-      daten[i] = Math.random() * 2 - 1;
-    }
-    rauschPuffer.set(ctx, puffer);
-  }
-  return puffer;
 }
 
 const zufall = (/** @type {number} */ min, /** @type {number} */ max) => min + Math.random() * (max - min);
 
 /* Frequenzbereiche werden logarithmisch gewürfelt, das entspricht dem Hören. */
 const zufallsFrequenz = (/** @type {number | [number, number]} */ f) => (Array.isArray(f) ? f[0] * (f[1] / f[0]) ** Math.random() : f);
-
-/* Abklingen auf -60 dB in `nachklang` Sekunden als Zeitkonstante für setTargetAtTime */
-const zeitkonstante = (/** @type {number} */ nachklang) => nachklang / 6.9;
 
 /**
  * Sinus mit Phasenversatz als PeriodicWave: sin(wt + 2*pi*versatz).
@@ -181,15 +158,13 @@ class KlangSchicht {
     /** @type {AudioScheduledSourceNode[]} */
     this.quellen = [];
     /** @type {AudioWorkletNode | null} */
-    this.rauschen = null;
+    this.erzeuger = null;
     /** @type {{ welle: Welle, param: AudioParam, basis: number, naechste: number }[]} */
     this.zufallsWellen = [];
-    this.naechstesEreignis = 0;
-    this.letzteNote = -1;
   }
 
   /**
-   * Startet Rauschquelle und Schwankungen. Sinus-Wellen laufen als eigene
+   * Startet Erzeuger (Rauschen oder Ereignisse) und Schwankungen. Sinus-Wellen laufen als eigene
    * Oszillatoren, deren Ausgang auf den Pegel bzw. die Filterfrequenz addiert wird.
    *
    * @param {number} zeit
@@ -228,30 +203,23 @@ class KlangSchicht {
       }
     }
 
-    if (s.rauschen) {
-      this.rauschen = new AudioWorkletNode(ctx, "rauschen", {
+    if (s.rauschen || s.ereignisse) {
+      this.erzeuger = new AudioWorkletNode(ctx, s.rauschen ? "rauschen" : "ereignisse", {
         numberOfInputs: 0,
         outputChannelCount: [2],
-        processorOptions: { farbe: s.rauschen },
+        processorOptions: s.rauschen ? { farbe: s.rauschen } : { schicht: s },
       });
-      this.rauschen.connect(this.eingang);
+      this.erzeuger.connect(this.eingang);
     }
-    this.naechstesEreignis = zeit + 0.1;
   }
 
   /**
-   * Plant Ereignisse und zufällige Schwankungen bis zum Zeitpunkt `bis`.
+   * Plant zufällige Schwankungen bis zum Zeitpunkt `bis`. Bleibt der Haupt-Thread im
+   * Hintergrund stehen, hält der Wert einfach, der Klang selbst läuft weiter.
    *
    * @param {number} bis
    */
   plane(bis) {
-    const { s } = this;
-    if (s.ereignisse && s.stimme) {
-      while (this.naechstesEreignis < bis) {
-        this.spiele(this.naechstesEreignis);
-        this.naechstesEreignis += this.abstand();
-      }
-    }
     for (const z of this.zufallsWellen) {
       while (z.naechste < bis) {
         const ziel = z.basis * (1 - Math.random() * z.welle.tiefe);
@@ -261,128 +229,16 @@ class KlangSchicht {
     }
   }
 
-  /** Zeit bis zum nächsten Ereignis: gleichmäßig mit Streuung oder zufällig nach Dichte */
-  abstand() {
-    const e = this.s.ereignisse ?? {};
-    const wert = e.dichte ? -Math.log(1 - Math.random()) / e.dichte : (e.abstand ?? 1) + zufall(-1, 1) * (e.streuung ?? 0);
-    return Math.max(0.01, wert);
-  }
-
-  /**
-   * Ein Ereignis, bei Mustern mehrere Anschläge (z. B. Herzschlag „ba-dum“).
-   *
-   * @param {number} zeit
-   */
-  spiele(zeit) {
-    const { ctx, s } = this;
-    /** @type {AudioNode} */
-    let ziel = this.eingang;
-    if (s.panorama) {
-      const panner = ctx.createStereoPanner();
-      panner.pan.value = zufall(-1, 1) * s.panorama;
-      panner.connect(this.eingang);
-      ziel = panner;
-    }
-    const streuung = 1 - Math.random() * (s.pegelstreuung ?? 0);
-    const faktor = this.grundfrequenz();
-    for (const [versatz, pegel, tonhoehe] of s.muster ?? [[0, 1]]) {
-      const t = zeit + versatz;
-      if (s.stimme?.art === "rauschen") {
-        this.rauschstoss(t, pegel * streuung, ziel);
-      } else {
-        this.ton(t, pegel * streuung, faktor * (tonhoehe ?? 1), ziel);
-      }
-    }
-  }
-
-  /** Frequenz des nächsten Tons. Bei Notenlisten nie zweimal hintereinander dieselbe. */
-  grundfrequenz() {
-    const st = this.s.stimme ?? /** @type {Stimme} */ ({ art: "ton" });
-    if (st.noten?.length) {
-      let i = Math.floor(Math.random() * st.noten.length);
-      if (st.noten.length > 1 && i === this.letzteNote) {
-        i = (i + 1 + Math.floor(Math.random() * (st.noten.length - 1))) % st.noten.length;
-      }
-      this.letzteNote = i;
-      return 440 * 2 ** ((st.noten[i] - 69) / 12);
-    }
-    return zufallsFrequenz(st.frequenz ?? 440);
-  }
-
-  /**
-   * Ton aus Sinus-Teiltönen, jeder mit eigener Lautstärke und Ausklingzeit.
-   *
-   * @param {number} t
-   * @param {number} pegel
-   * @param {number} frequenz
-   * @param {AudioNode} ziel
-   */
-  ton(t, pegel, frequenz, ziel) {
-    const { ctx } = this;
-    const st = /** @type {Stimme} */ (this.s.stimme);
-    const anschlag = st.anschlag ?? 0.005;
-    for (const [verhaeltnis, teilpegel, nachklang] of st.teiltoene ?? [[1, 1, 1]]) {
-      const f = frequenz * verhaeltnis;
-      if (f >= ctx.sampleRate / 2) {
-        continue;
-      }
-      const osz = ctx.createOscillator();
-      if (st.gleiten) {
-        osz.frequency.setValueAtTime(f * st.gleiten[0], t);
-        osz.frequency.exponentialRampToValueAtTime(f, t + st.gleiten[1]);
-      } else {
-        osz.frequency.value = f;
-      }
-      const huelle = ctx.createGain();
-      huelle.gain.setValueAtTime(0, t);
-      huelle.gain.linearRampToValueAtTime(pegel * teilpegel, t + anschlag);
-      huelle.gain.setTargetAtTime(0, t + anschlag, zeitkonstante(nachklang));
-      osz.connect(huelle).connect(ziel);
-      osz.start(t);
-      osz.stop(t + anschlag + nachklang + 0.05);
-    }
-  }
-
-  /**
-   * Kurzer gefilterter Rauschstoß.
-   *
-   * @param {number} t
-   * @param {number} pegel
-   * @param {AudioNode} ziel
-   */
-  rauschstoss(t, pegel, ziel) {
-    const { ctx } = this;
-    const st = /** @type {Stimme} */ (this.s.stimme);
-    const anschlag = st.anschlag ?? 0.002;
-    const nachklang = st.nachklang ?? 0.05;
-    const quelle = ctx.createBufferSource();
-    quelle.buffer = weissesRauschen(ctx);
-    /** @type {AudioNode} */
-    let letzter = quelle;
-    for (const f of st.filter ?? []) {
-      const knoten = baueFilter(ctx, f);
-      letzter.connect(knoten);
-      letzter = knoten;
-    }
-    const huelle = ctx.createGain();
-    huelle.gain.setValueAtTime(0, t);
-    huelle.gain.linearRampToValueAtTime(pegel, t + anschlag);
-    huelle.gain.setTargetAtTime(0, t + anschlag, zeitkonstante(nachklang));
-    letzter.connect(huelle).connect(ziel);
-    quelle.start(t, Math.random() * (quelle.buffer.duration - 1));
-    quelle.stop(t + anschlag + nachklang + 0.05);
-  }
-
   /** @param {number} zeit */
   stoppe(zeit) {
     for (const quelle of this.quellen) {
       quelle.stop(zeit);
     }
-    this.rauschen?.port.postMessage("stopp");
+    this.erzeuger?.port.postMessage("stopp");
   }
 
   trenne() {
-    this.rauschen?.disconnect();
+    this.erzeuger?.disconnect();
     this.pegel.disconnect();
   }
 }
@@ -437,8 +293,41 @@ export class KlangGraph {
 const verstaerkung = (/** @type {number} */ lautstaerke) => lautstaerke * lautstaerke;
 
 /**
+ * Eine halbe Sekunde digitale Stille als WAV (8 kHz, 8 Bit), zur Laufzeit erzeugt.
+ * Ein laufendes Medienelement markiert die Seite auf iOS als Medienwiedergabe.
+ */
+function stilleWav() {
+  const laenge = 4000;
+  const daten = new DataView(new ArrayBuffer(44 + laenge));
+  const text = (/** @type {number} */ stelle, /** @type {string} */ zeichen) =>
+    [...zeichen].forEach((z, i) => daten.setUint8(stelle + i, z.charCodeAt(0)));
+  text(0, "RIFF");
+  daten.setUint32(4, 36 + laenge, true);
+  text(8, "WAVE");
+  text(12, "fmt ");
+  daten.setUint32(16, 16, true);
+  daten.setUint16(20, 1, true);
+  daten.setUint16(22, 1, true);
+  daten.setUint32(24, 8000, true);
+  daten.setUint32(28, 8000, true);
+  daten.setUint16(32, 1, true);
+  daten.setUint16(34, 8, true);
+  text(36, "data");
+  daten.setUint32(40, laenge, true);
+  new Uint8Array(daten.buffer, 44).fill(128);
+  return URL.createObjectURL(new Blob([daten.buffer], { type: "audio/wav" }));
+}
+
+/**
  * Abspielen in Echtzeit mit Lautstärke, weichem Ein-/Ausblenden und Wechsel
  * zwischen Klängen. Der AudioContext darf erst nach einer Nutzeraktion starten.
+ *
+ * Hintergrund und Sperrbildschirm (vor allem iOS):
+ *   - navigator.audioSession.type = "playback" (Safari ab 16.4, im Hintergrund ab iOS 17.5)
+ *     macht aus der Seite eine Medienwiedergabe, statt sie wie Umgebungston stumm zu schalten.
+ *   - Ein stilles Medienelement in Schleife, gestartet direkt in der Bedienung, hält die
+ *     Audio-Sitzung zusätzlich offen und liefert die Steuerung auf dem Sperrbildschirm.
+ *   - Nach Unterbrechungen (Anruf, Siri) wird fortgesetzt, sobald das System es erlaubt.
  */
 export class Klangerzeuger {
   constructor() {
@@ -448,17 +337,29 @@ export class Klangerzeuger {
     this.haupt = null;
     /** @type {KlangGraph | null} */
     this.graph = null;
+    /** @type {HTMLAudioElement | null} */
+    this.stille = null;
     /** @type {ReturnType<typeof setInterval> | undefined} */
     this.takt = undefined;
     this.lautstaerke = 0.5;
     this.aktiv = false;
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        this.fortsetzen();
+      }
+    });
   }
 
   /*
-   * Hauptausgang mit Begrenzer, damit sich überlagernde Ereignisse nie übersteuern.
-   * Auf iOS spielt Web Audio sonst nicht bei eingeschaltetem Stummschalter.
+   * Alles bis zum ersten await läuft noch innerhalb der Bedienung. Safari erlaubt
+   * Ton nur dort, deshalb werden Kontext, Stille und resume() hier sofort angestoßen.
+   * Der Begrenzer im Ausgang verhindert, dass sich überlagernde Töne übersteuern.
    */
   async bereit() {
+    const sitzung = /** @type {any} */ (navigator).audioSession;
+    if (sitzung && sitzung.type !== "playback") {
+      sitzung.type = "playback";
+    }
     if (!this.ctx) {
       this.ctx = new AudioContext({ latencyHint: "playback" });
       this.haupt = this.ctx.createGain();
@@ -470,26 +371,46 @@ export class Klangerzeuger {
       begrenzer.attack.value = 0.003;
       begrenzer.release.value = 0.25;
       this.haupt.connect(begrenzer).connect(this.ctx.destination);
+      this.ctx.addEventListener("statechange", () => {
+        if (this.ctx?.state !== "running") {
+          this.fortsetzen();
+        }
+      });
     }
-    const sitzung = /** @type {any} */ (navigator).audioSession;
-    if (sitzung) {
-      sitzung.type = "playback";
+    if (!this.stille) {
+      this.stille = new Audio(stilleWav());
+      this.stille.loop = true;
+      this.stille.setAttribute("playsinline", "");
     }
-    /* resume() noch im Aufruf aus der Bedienung starten, Safari verlangt das */
-    const fortsetzen = this.ctx.resume();
+    const stilleLaeuft = this.stille.play().catch(() => undefined);
+    const laeuft = this.ctx.resume();
     await ladeWorklet(this.ctx);
-    await fortsetzen;
+    await Promise.all([laeuft, stilleLaeuft]);
     return { ctx: this.ctx, haupt: /** @type {GainNode} */ (this.haupt) };
+  }
+
+  /** Nach Unterbrechung oder Rückkehr in den Vordergrund weiterspielen, falls gewünscht. */
+  fortsetzen() {
+    if (!this.aktiv || !this.ctx) {
+      return;
+    }
+    this.stille?.play().catch(() => undefined);
+    this.ctx.resume().catch(() => undefined);
   }
 
   /**
    * Startet einen Klang oder wechselt überblendend zu ihm.
    *
    * @param {Beschreibung} beschreibung
+   * @param {string} [titel] Anzeige auf dem Sperrbildschirm
    */
-  async spiele(beschreibung) {
+  async spiele(beschreibung, titel = "Klang") {
     this.aktiv = true;
+    this.zeigeTitel(titel, "playing");
     const { ctx, haupt } = await this.bereit();
+    if (!this.aktiv) {
+      return;
+    }
     const jetzt = ctx.currentTime;
     this.graph?.beende(jetzt, AUSBLENDEN);
     this.graph = new KlangGraph(ctx, beschreibung, haupt);
@@ -504,6 +425,7 @@ export class Klangerzeuger {
   /** Blendet aus und hält den AudioContext danach an (spart Strom). */
   stoppe() {
     this.aktiv = false;
+    this.zeigeTitel(null, "paused");
     const { ctx, haupt } = this;
     if (!ctx || !haupt) {
       return;
@@ -516,6 +438,7 @@ export class Klangerzeuger {
       clearInterval(this.takt);
       this.graph?.beende(ctx.currentTime, 0.05);
       this.graph = null;
+      this.stille?.pause();
       ctx.suspend();
     }, AUSBLENDEN * 1000 + 300);
   }
@@ -526,5 +449,25 @@ export class Klangerzeuger {
     if (this.aktiv && this.ctx && this.haupt) {
       this.haupt.gain.setTargetAtTime(verstaerkung(wert), this.ctx.currentTime, 0.1);
     }
+  }
+
+  /**
+   * Titel und Zustand für Sperrbildschirm und Mediensteuerung des Systems.
+   *
+   * @param {string | null} titel
+   * @param {MediaSessionPlaybackState} zustand
+   */
+  zeigeTitel(titel, zustand) {
+    if (!("mediaSession" in navigator)) {
+      return;
+    }
+    if (titel) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: titel,
+        artist: "Kontrastbilder",
+        artwork: [{ src: new URL("../icons/icon-512.png", import.meta.url).href, sizes: "512x512", type: "image/png" }],
+      });
+    }
+    navigator.mediaSession.playbackState = zustand;
   }
 }

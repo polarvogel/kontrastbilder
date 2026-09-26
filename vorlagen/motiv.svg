@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" data-farbe-f1="rot">
+  <style>
+    /* Farbrollen (siehe README). Die Fallback-Werte gelten nur beim direkten Öffnen der Datei. */
+    .v { fill: var(--v, #000); }
+    .h { fill: var(--h, #fff); }
+    .f1 { fill: var(--f1, var(--v, #000)); }
+    .f2 { fill: var(--f2, var(--v, #000)); }
+    .f3 { fill: var(--f3, var(--v, #000)); }
+    .d1 { fill: var(--d1, var(--h, #fff)); }
+    .vl, .hl, .f1l, .f2l, .f3l, .d1l { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .vl { stroke: var(--v, #000); }
+    .hl { stroke: var(--h, #fff); }
+    .f1l { stroke: var(--f1, var(--v, #000)); }
+    .f2l { stroke: var(--f2, var(--v, #000)); }
+    .f3l { stroke: var(--f3, var(--v, #000)); }
+    .d1l { stroke: var(--d1, var(--h, #fff)); }
+
+    /* VORLAGE: Bewegung beschreiben (was, wie lange). Ohne Bewegung diesen Block löschen. */
+    .kopf { transform-origin: 200px 330px; animation: wiegen 5s ease-in-out infinite alternate; }
+    @keyframes wiegen {
+      from { transform: rotate(-4deg); }
+      to { transform: rotate(4deg); }
+    }
+  </style>
+
+  <rect class="h" width="400" height="400"/>
+
+  <!-- VORLAGE: Hauptform, füllt 60–75 % der Kantenlänge (hier Kreis mit 260 Durchmesser = 65 %) -->
+  <g class="kopf">
+    <circle class="f1" cx="200" cy="200" r="130"/>
+
+    <!-- VORLAGE: Details als Aussparung in Hintergrundfarbe. Auge: weiß, Pupille, Glanzpunkt -->
+    <circle class="h" cx="160" cy="180" r="17"/>
+    <circle class="v" cx="162" cy="182" r="10"/>
+    <circle class="h" cx="157" cy="177" r="3.5"/>
+    <circle class="h" cx="240" cy="180" r="17"/>
+    <circle class="v" cx="238" cy="182" r="10"/>
+    <circle class="h" cx="233" cy="177" r="3.5"/>
+    <path class="hl" stroke-width="12" d="M160 236 Q200 266 240 236"/>
+  </g>
+</svg>

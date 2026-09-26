@@ -4,15 +4,27 @@ Schwarz-weiße Kontrastbilder für Säuglinge (ca. 0–4 Monate), eines nach dem
 
 Stand: 20 Motive, davon 14 animiert. GitHub-Pages-Deployment folgt.
 
-## Lokal starten
+## Lokal testen
 
-Die Seite nutzt ES-Module und lädt die Motive als SVG-Dateien nach. Beides blockieren Browser beim direkten Öffnen der Datei (`file://`). Deshalb ein kleiner lokaler Server, Python ist auf Fedora/Bazzite vorhanden:
+### Am Rechner
+
+Im Projektordner:
 
 ```bash
-python3 -m http.server 8000 --bind 127.0.0.1 --directory site
+python3 werkzeuge/server.py
 ```
 
-Dann `http://localhost:8000` öffnen. Über `localhost` funktionieren auch Bildschirm-wachhalten und der Offline-Cache.
+Dann `http://localhost:8000` im Browser öffnen, beenden mit Strg+C. Der Server sendet `no-store`, der Browser zeigt nach Änderungen also nie alte Dateien. `python3 -m http.server 8000 --directory site` geht auch, dann nach Änderungen aber im Browser hart neu laden (Strg+Shift+R).
+
+Direkt als Datei öffnen (`file://`) geht nicht: ES-Module und das Nachladen der Motive blockieren alle Browser dort. Die Seite zeigt dann einen Hinweis.
+
+Über `localhost` funktionieren auch Bildschirm-wachhalten, Offline-Cache und Klänge. Klänge brauchen einen „sicheren Kontext“ (https oder localhost), weil das AudioWorklet nur dort verfügbar ist.
+
+### Auf iPhone, iPad oder Android
+
+Über das Heimnetz (`python3 werkzeuge/server.py --bind 0.0.0.0`, dann `http://<IP des Rechners>:8000`) lädt die Seite. Motive und Bedienung lassen sich so testen, **Klänge, Bildschirm-wachhalten und Offline-Betrieb aber nicht**: Eine Adresse wie `http://192.168.…` ist kein sicherer Kontext. Die Firewall des Rechners muss den Port außerdem freigeben.
+
+Für einen vollständigen Test auf dem Handy braucht es https. Der saubere Weg ist GitHub Pages (siehe unten). Andere Wege (Tunnel-Dienste, eigene Zertifikate) sind aufwendiger oder schicken den Verkehr über fremde Server.
 
 ## Bedienung
 
@@ -41,7 +53,7 @@ site/
   index.html, druck.html, pruefen.html
   css/            app.css, druck.css, pruefen.css
   js/             app.js (Anzeige), motive.js (Laden/Einbetten), farben.js (Palette), einstellungen.js,
-                  klang.js (Klangerzeuger), rauschen-worklet.js (Rauschgenerator),
+                  klang.js (Klangerzeuger), klang-worklet.js (Erzeugung im Audio-Thread),
                   wachhalten.js (Screen Wake Lock), druck.js, pruefen.js
   motive/         liste.js (Reihenfolge) und eine SVG-Datei pro Motiv
   klaenge/        liste.js (Reihenfolge) und eine JSON-Datei pro Klang
@@ -120,11 +132,12 @@ Die Prüfseite gibt einen Hinweis, wenn eine Farbe sich hell/dunkel kaum vom Hin
 
 ## Klänge
 
-Alle Klänge entstehen live im Gerät mit der Web Audio API, es gibt keine Audiodateien. Dauerrauschen wird im AudioWorklet (`js/rauschen-worklet.js`) Probe für Probe neu erzeugt, ohne Schleife. Einzelne Ereignisse (Töne, Rauschstöße) plant `js/klang.js` mit 1,5 s Vorlauf.
+Alle Klänge entstehen live im Gerät mit der Web Audio API, es gibt keine Audiodateien. Dauerrauschen und Ereignisse (Töne, Rauschstöße) entstehen Probe für Probe im AudioWorklet (`js/klang-worklet.js`), also im Audio-Thread. Dadurch läuft der Klang weiter, auch wenn der Browser im Hintergrund oder bei gesperrtem Bildschirm Timer anhält. `js/klang.js` baut aus der JSON-Beschreibung den Graphen mit Filtern und langsamen Schwankungen.
 
 - Ton startet erst nach der ersten Bedienung (Tippen, Taste), das verlangen alle Browser. War der Klang beim letzten Mal an, beginnt er bei der ersten Berührung.
 - Ein- und Ausblenden dauern 1–2 s, beim Wechsel wird übergeblendet. Ein Begrenzer im Ausgang verhindert Übersteuern.
-- Der Klang läuft nach dem Sitzungs-Timer weiter (zum Einschlafen). Bei gesperrtem Bildschirm halten Handys ihn meist an.
+- Der Klang läuft nach dem Sitzungs-Timer weiter (zum Einschlafen).
+- Hintergrund und Sperrbildschirm: Die Seite meldet sich als Medienwiedergabe (`navigator.audioSession.type = "playback"`, Safari ab 16.4, im Hintergrund ab iOS 17.5), startet dazu ein stilles Audio-Element in Schleife und setzt Titel und Play/Pause für den Sperrbildschirm (Media Session API). Nach Unterbrechungen wie Anrufen wird fortgesetzt, sobald das System es erlaubt. Auf echten Geräten noch nicht getestet.
 - Kleine Handylautsprecher geben den tiefen Herzschlag nur leise wieder.
 
 ### Neuer Klang
@@ -168,6 +181,14 @@ Stimme `"art": "ton"`: Sinus-Teiltöne. `noten` (MIDI-Nummern, 60 = c', zufälli
 Stimme `"art": "rauschen"`: kurzer Rauschstoß mit eigenen `filter` (Frequenz auch als Bereich, dann zufällig je Stoß), `anschlag` und `nachklang` in s.
 
 Die Pegel der vorhandenen Klänge sind so eingestellt, dass alle etwa gleich laut sind (rund −20 dB Effektivwert, Spitzen unter −3 dB). Neue Klänge danach ausrichten.
+
+## Werkzeuge und Anleitungen für KI-Agenten
+
+- `AGENTS.md`: Einstieg für KI-Agenten (Codex, Copilot, Cursor, Gemini CLI u. a.). `CLAUDE.md` verweist für Claude Code darauf.
+- `anleitungen/motiv-erstellen.md`, `anleitungen/klang-erstellen.md`: Schritt-für-Schritt-Anleitungen für eine andere KI, mit harten Regeln, Rezepten, typischen Fehlern und Checkliste.
+- `vorlagen/`: Gerüste für ein neues Motiv und einen neuen Klang, beide bestehen die Prüfung.
+- `werkzeuge/pruefen.py`: prüft Motive oder Klänge von der Kommandozeile (Chromium ohne Fenster, gesteuert über das DevTools-Protokoll, nur Python-Standardbibliothek). Beispiel: `python3 werkzeuge/pruefen.py motiv elefant --bild /tmp/elefant.png`.
+- `werkzeuge/klang.schema.json`: JSON Schema des Klangformats. Editoren wie VS Code prüfen damit beim Schreiben, wenn eine Klangdatei `"$schema": "../../werkzeuge/klang.schema.json"` enthält.
 
 ## Offline und Deployment
 

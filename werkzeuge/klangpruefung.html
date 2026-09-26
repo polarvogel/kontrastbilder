@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>Klangprüfung</title>
+  <script type="module" src="klangpruefung.js"></script>
+</head>
+<body>
+  <!--
+    Prüft Klangbeschreibungen: Schema, Pegel, Übersteuerung, Abstände.
+    Aufruf über einen Server im Projektordner, am einfachsten mit werkzeuge/pruefen.sh klang.
+      klangpruefung.html                alle Klänge aus site/klaenge/liste.js
+      klangpruefung.html?klang=meer     ein Klang aus der Liste
+      klangpruefung.html?datei=neu.json Datei in site/klaenge/, auch ohne Listeneintrag
+  -->
+  <pre id="ergebnis-text">läuft …</pre>
+</body>
+</html>

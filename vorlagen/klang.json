@@ -1,0 +1,21 @@
+{
+  "schichten": [
+    {
+      "rauschen": "rosa",
+      "pegel": 0.3,
+      "filter": [{ "typ": "tiefpass", "frequenz": 1500 }],
+      "wellen": [{ "ziel": "pegel", "periode": 9, "tiefe": 0.3 }]
+    },
+    {
+      "ereignisse": { "abstand": 3, "streuung": 0.8 },
+      "pegel": 0.35,
+      "panorama": 0.3,
+      "stimme": {
+        "art": "ton",
+        "noten": [72, 74, 76, 79, 81],
+        "anschlag": 0.004,
+        "teiltoene": [[1, 1, 2], [4, 0.15, 0.4]]
+      }
+    }
+  ]
+}

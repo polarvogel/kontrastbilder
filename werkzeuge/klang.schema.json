@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "klang.schema.json",
+  "title": "Klangbeschreibung (Kontrastbilder)",
+  "description": "Beschreibt, wie js/klang.js einen Klang live erzeugt. Ein Klang besteht aus 1 bis 6 Schichten; jede Schicht ist Dauerrauschen ODER eine Folge von Ereignissen.",
+  "type": "object",
+  "required": ["schichten"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "schichten": { "type": "array", "minItems": 1, "maxItems": 6, "items": { "$ref": "#/$defs/schicht" } }
+  },
+  "$defs": {
+    "hz": { "type": "number", "minimum": 20, "maximum": 20000, "description": "Frequenz in Hz" },
+    "frequenz": {
+      "description": "Feste Frequenz oder Bereich [min, max]; ein Bereich wird je Ereignis zufällig (logarithmisch) gewürfelt",
+      "oneOf": [
+        { "$ref": "#/$defs/hz" },
+        { "type": "array", "prefixItems": [{ "$ref": "#/$defs/hz" }, { "$ref": "#/$defs/hz" }], "items": false, "minItems": 2 }
+      ]
+    },
+    "anteil": { "type": "number", "minimum": 0, "maximum": 1 },
+    "filter": {
+      "type": "object",
+      "required": ["typ", "frequenz"],
+      "additionalProperties": false,
+      "properties": {
+        "typ": { "enum": ["tiefpass", "hochpass", "bandpass"] },
+        "frequenz": { "$ref": "#/$defs/frequenz" },
+        "guete": { "type": "number", "minimum": 0.1, "maximum": 30, "description": "Güte Q, Standard 0.7" }
+      }
+    },
+    "welle": {
+      "description": "Langsame Schwankung. Periode mindestens 2 s: schnelle Schwankungen sind unerwünscht.",
+      "type": "object",
+      "required": ["ziel", "periode", "tiefe"],
+      "additionalProperties": false,
+      "properties": {
+        "ziel": { "enum": ["pegel", "filter"], "description": "filter = Frequenz des ersten Filters der Schicht" },
+        "form": { "enum": ["sinus", "zufall"], "description": "Standard sinus" },
+        "periode": { "type": "number", "minimum": 2, "maximum": 120 },
+        "tiefe": { "$ref": "#/$defs/anteil" },
+        "versatz": { "$ref": "#/$defs/anteil", "description": "Phasenversatz, nur bei sinus" }
+      }
+    },
+    "stimme": {
+      "type": "object",
+      "required": ["art"],
+      "additionalProperties": false,
+      "properties": {
+        "art": { "enum": ["ton", "rauschen"] },
+        "noten": { "type": "array", "minItems": 1, "maxItems": 24, "items": { "type": "integer", "minimum": 24, "maximum": 108 }, "description": "MIDI-Nummern (60 = c', 69 = a' 440 Hz), nur art ton" },
+        "frequenz": { "$ref": "#/$defs/frequenz", "description": "Alternative zu noten, nur art ton" },
+        "teiltoene": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "description": "[Verhältnis zum Grundton, Pegel, Nachklang in s bis -60 dB], nur art ton",
+          "items": {
+            "type": "array",
+            "prefixItems": [
+              { "type": "number", "minimum": 0.25, "maximum": 32 },
+              { "$ref": "#/$defs/anteil" },
+              { "type": "number", "minimum": 0.01, "maximum": 8 }
+            ],
+            "items": false,
+            "minItems": 3
+          }
+        },
+        "gleiten": {
+          "type": "array",
+          "prefixItems": [{ "type": "number", "minimum": 0.25, "maximum": 8 }, { "type": "number", "minimum": 0.001, "maximum": 1 }],
+          "items": false,
+          "minItems": 2,
+          "description": "[Startfaktor der Tonhöhe, Dauer in s]"
+        },
+        "filter": { "type": "array", "maxItems": 3, "items": { "$ref": "#/$defs/filter" }, "description": "nur art rauschen" },
+        "anschlag": { "type": "number", "minimum": 0.0005, "maximum": 0.5, "description": "Einschwingzeit in s" },
+        "nachklang": { "type": "number", "minimum": 0.005, "maximum": 8, "description": "Ausklingzeit in s, nur art rauschen" }
+      }
+    },
+    "schicht": {
+      "type": "object",
+      "required": ["pegel"],
+      "additionalProperties": false,
+      "oneOf": [
+        { "required": ["rauschen"] },
+        { "required": ["ereignisse", "stimme"] }
+      ],
+      "properties": {
+        "rauschen": { "enum": ["weiss", "rosa", "braun"] },
+        "ereignisse": {
+          "type": "object",
+          "additionalProperties": false,
+          "oneOf": [{ "required": ["abstand"] }, { "required": ["dichte"] }],
+          "properties": {
+            "abstand": { "type": "number", "minimum": 0.05, "maximum": 60, "description": "mittlerer Abstand in s" },
+            "streuung": { "type": "number", "minimum": 0, "maximum": 30, "description": "± Zufallsabweichung in s, nur mit abstand" },
+            "dichte": { "type": "number", "minimum": 0.01, "maximum": 60, "description": "zufällige Ereignisse pro Sekunde" }
+          }
+        },
+        "muster": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "description": "Anschläge je Ereignis: [Versatz s, Pegel, Tonhöhenfaktor]",
+          "items": {
+            "type": "array",
+            "prefixItems": [
+              { "type": "number", "minimum": 0, "maximum": 5 },
+              { "$ref": "#/$defs/anteil" },
+              { "type": "number", "minimum": 0.25, "maximum": 4 }
+            ],
+            "items": false,
+            "minItems": 2
+          }
+        },
+        "stimme": { "$ref": "#/$defs/stimme" },
+        "pegel": { "$ref": "#/$defs/anteil" },
+        "pegelstreuung": { "$ref": "#/$defs/anteil" },
+        "panorama": { "$ref": "#/$defs/anteil" },
+        "filter": { "type": "array", "maxItems": 3, "items": { "$ref": "#/$defs/filter" } },
+        "wellen": { "type": "array", "maxItems": 4, "items": { "$ref": "#/$defs/welle" } }
+      }
+    }
+  }
+}
