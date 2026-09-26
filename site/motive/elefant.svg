@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <style>
+    /* Farbrollen (siehe README). Die Fallback-Werte gelten nur beim direkten Öffnen der Datei. */
+    .v { fill: var(--v, #000); }
+    .h { fill: var(--h, #fff); }
+    .f1 { fill: var(--f1, var(--v, #000)); }
+    .f2 { fill: var(--f2, var(--v, #000)); }
+    .f3 { fill: var(--f3, var(--v, #000)); }
+    .vl { fill: none; stroke: var(--v, #000); stroke-linecap: round; stroke-linejoin: round; }
+    .hl { fill: none; stroke: var(--h, #fff); stroke-linecap: round; stroke-linejoin: round; }
+
+    /*
+     * Rüssel hebt sich in 7 s und senkt sich in 7 s.
+     * Oberes Stück dreht um den Ansatz am Kopf, die Spitze zusätzlich um das Gelenk,
+     * dadurch rollt sie sich beim Heben ein.
+     */
+    .ruessel { transform-origin: 96px 196px; animation: heben 7s ease-in-out infinite alternate; }
+    .spitze { transform-origin: 80px 250px; animation: einrollen 7s ease-in-out infinite alternate; }
+    @keyframes heben { to { transform: rotate(20deg); } }
+    @keyframes einrollen { to { transform: rotate(32deg); } }
+  </style>
+
+  <rect class="h" width="400" height="400"/>
+
+  <!-- Gezeichnet in freien Koordinaten, hier auf die Zielgröße verkleinert und zentriert -->
+  <g transform="translate(206 200) scale(0.84) translate(-199 -215)">
+
+  <!-- Beine, Körper, Schwanz -->
+  <rect class="v" x="164" y="228" width="34" height="86" rx="16"/>
+  <rect class="v" x="212" y="228" width="34" height="86" rx="16"/>
+  <rect class="v" x="262" y="228" width="34" height="86" rx="16"/>
+  <rect class="v" x="308" y="228" width="30" height="80" rx="15"/>
+  <path class="vl" stroke-width="12" d="M338 206 Q352 226 348 248"/>
+  <ellipse class="v" cx="250" cy="212" rx="92" ry="70"/>
+
+  <!-- Rüssel in zwei Stücken -->
+  <g class="ruessel">
+    <path class="vl" stroke-width="36" d="M98 196 L82 250"/>
+    <g class="spitze">
+      <path class="vl" stroke-width="30" d="M82 250 Q76 280 58 288"/>
+    </g>
+  </g>
+
+  <!-- Kopf, Ohr mit Aussparungskante, Auge -->
+  <circle class="v" cx="136" cy="176" r="60"/>
+  <ellipse class="v" cx="184" cy="180" rx="40" ry="52"/>
+  <ellipse class="hl" stroke-width="9" cx="184" cy="180" rx="40" ry="52"/>
+  <circle class="h" cx="118" cy="166" r="15"/>
+  <circle class="v" cx="116" cy="168" r="9"/>
+  <circle class="h" cx="113" cy="164" r="3.5"/>
+
+  </g>
+</svg>

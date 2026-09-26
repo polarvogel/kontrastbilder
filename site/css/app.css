@@ -1,0 +1,312 @@
+/*
+ * Farbrollen der Motive: --v Vordergrund, --h Hintergrund.
+ * Registriert, damit der Wechsel normal/invertiert weich überblendet statt hart umzuschlagen.
+ * --f1 bis --f3 sind für spätere Farben reserviert und fallen in den Motiven auf --v zurück.
+ */
+@property --v {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #000;
+}
+
+@property --h {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #fff;
+}
+
+:root {
+  --v: #000;
+  --h: #fff;
+  --uebergang: 700ms;
+  --farbwechsel: 1200ms;
+  --ende: 4s;
+  /* Grundgröße der Bedienelemente, wächst mit dem Bildschirm (Handy bis 4K-TV) */
+  --ui: clamp(44px, 5.5vmin, 120px);
+  color-scheme: light;
+  transition:
+    --v var(--farbwechsel) ease-in-out,
+    --h var(--farbwechsel) ease-in-out;
+}
+
+:root.invertiert {
+  --v: #fff;
+  --h: #000;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--h);
+  overflow: hidden;
+  font-family: system-ui, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+body.ruhig {
+  cursor: none;
+}
+
+/* Bühne: ein Motiv, zentriert, quadratisch, so groß wie die kürzere Bildschirmseite */
+#buehne {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  touch-action: none;
+  transition: opacity var(--uebergang) ease-in-out;
+}
+
+#buehne.ausgeblendet {
+  opacity: 0;
+}
+
+body.beendet #buehne {
+  opacity: 0;
+  transition-duration: var(--ende);
+}
+
+.motiv {
+  width: min(100dvw, 100dvh);
+  height: min(100dvw, 100dvh);
+}
+
+/* Bedienleiste, blendet sich nach kurzer Zeit selbst aus */
+.leiste {
+  position: fixed;
+  left: 50%;
+  bottom: max(2.5vmin, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: calc(var(--ui) * 0.12);
+  padding: calc(var(--ui) * 0.12) calc(var(--ui) * 0.25);
+  max-width: calc(100vw - 16px);
+  box-sizing: border-box;
+  background: rgb(28 28 28 / 0.9);
+  color: #fff;
+  border-radius: 999px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms ease;
+}
+
+body.leiste-sichtbar .leiste {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.leiste button,
+.ende button {
+  flex: none;
+  width: var(--ui);
+  height: var(--ui);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.leiste button:hover {
+  background: rgb(255 255 255 / 0.14);
+}
+
+.leiste button:focus-visible,
+.ende button:focus-visible,
+.einstellungen :focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}
+
+.leiste svg {
+  width: 56%;
+  height: 56%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.leiste svg .gefuellt,
+.leiste .symbol-play polygon {
+  fill: currentColor;
+}
+
+#animation[aria-pressed="true"] .symbol-play,
+#animation[aria-pressed="false"] .symbol-pause {
+  display: none;
+}
+
+.leiste .titel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: calc(var(--ui) * 0.34);
+  padding: 0 0.3em;
+}
+
+@media (max-width: 480px) {
+  .leiste .titel {
+    display: none;
+  }
+}
+
+/* Anzeige nach Ablauf des Sitzungs-Timers, nur zusammen mit der Leiste sichtbar */
+.ende {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 1em;
+  color: var(--v);
+  font-size: calc(var(--ui) * 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms ease;
+}
+
+.ende[hidden] {
+  display: none;
+}
+
+body.leiste-sichtbar .ende {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ende p {
+  margin: 0;
+}
+
+.ende button {
+  width: auto;
+  height: auto;
+  padding: 0.6em 1.4em;
+  border-radius: 999px;
+  background: rgb(28 28 28 / 0.9);
+  color: #fff;
+  font: inherit;
+}
+
+/* Einstellungsdialog */
+.einstellungen {
+  width: min(34em, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  box-sizing: border-box;
+  padding: 1.2em 1.4em;
+  border: 0;
+  border-radius: 16px;
+  background: #1c1c1c;
+  color: #fff;
+  font-size: calc(var(--ui) * 0.34);
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.einstellungen::backdrop {
+  background: rgb(0 0 0 / 0.5);
+}
+
+.einstellungen h2 {
+  margin: 0 0 0.8em;
+  font-size: 1.2em;
+}
+
+.einstellungen .zeile {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  min-height: 2.4em;
+}
+
+.einstellungen .zeile > span {
+  flex: 1;
+}
+
+.einstellungen input[type="checkbox"] {
+  width: 1.3em;
+  height: 1.3em;
+  margin: 0;
+  accent-color: #fff;
+}
+
+.einstellungen input[type="range"] {
+  flex: 1;
+  accent-color: #fff;
+}
+
+.einstellungen select {
+  width: 10.5em;
+  font: inherit;
+  padding: 0.2em 0.4em;
+}
+
+.einstellungen output {
+  min-width: 3em;
+  text-align: right;
+}
+
+.einstellungen .hinweis {
+  margin: 0.2em 0 0.8em;
+  font-size: 0.8em;
+  color: #bbb;
+}
+
+.einstellungen .links {
+  display: flex;
+  gap: 1.5em;
+  margin: 1em 0;
+}
+
+.einstellungen a {
+  color: #fff;
+}
+
+.einstellungen .schliessen {
+  font: inherit;
+  padding: 0.5em 1.4em;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  color: #000;
+  cursor: pointer;
+}
+
+/* Hinweis bei Aufruf über file:// */
+.datei-hinweis {
+  display: none;
+  max-width: 36em;
+  margin: 10vh auto;
+  padding: 0 16px;
+  color: #000;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.datei .datei-hinweis {
+  display: block;
+}
+
+.datei #buehne,
+.datei .leiste {
+  display: none;
+}
+
+.datei-hinweis pre {
+  padding: 0.8em;
+  background: #eee;
+  overflow-x: auto;
+}

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Kontrastbilder</title>
+  <meta name="description" content="Schwarz-weiße Kontrastbilder für Säuglinge, teilweise langsam animiert.">
+  <meta name="theme-color" content="#000000">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Kontrast">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="stylesheet" href="css/app.css">
+  <!-- Über file:// laufen ES-Module nicht. Dann nur den Hinweis zeigen. -->
+  <script>
+    if (location.protocol === "file:") {
+      document.documentElement.classList.add("datei");
+    }
+  </script>
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <main id="buehne"></main>
+
+  <div id="ende" class="ende" hidden>
+    <p>Pause</p>
+    <button type="button" id="fortsetzen">Weiter ansehen</button>
+  </div>
+
+  <nav id="leiste" class="leiste" aria-label="Bedienung" inert>
+    <button type="button" id="zurueck" title="Zurück (Pfeil links)" aria-label="Zurück">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 5 8 12 15 19"/></svg>
+    </button>
+    <span id="titel" class="titel"></span>
+    <button type="button" id="weiter" title="Weiter (Pfeil rechts)" aria-label="Weiter">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 5 16 12 9 19"/></svg>
+    </button>
+    <button type="button" id="animation" title="Animation an/aus (Leertaste)" aria-label="Animation" aria-pressed="true">
+      <svg viewBox="0 0 24 24" aria-hidden="true" class="symbol-pause"><line x1="9" y1="6" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="18"/></svg>
+      <svg viewBox="0 0 24 24" aria-hidden="true" class="symbol-play"><polygon points="8 5 19 12 8 19"/></svg>
+    </button>
+    <button type="button" id="invertieren" title="Invertieren (I)" aria-label="Invertieren" aria-pressed="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" class="gefuellt"/></svg>
+    </button>
+    <button type="button" id="vollbild" title="Vollbild (F)" aria-label="Vollbild">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="4 9 4 4 9 4"/><polyline points="15 4 20 4 20 9"/><polyline points="20 15 20 20 15 20"/><polyline points="9 20 4 20 4 15"/></svg>
+    </button>
+    <button type="button" id="menue" title="Einstellungen" aria-label="Einstellungen" aria-haspopup="dialog">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="17" x2="20" y2="17"/><circle cx="9" cy="7" r="2.2" class="gefuellt"/><circle cx="15" cy="17" r="2.2" class="gefuellt"/></svg>
+    </button>
+  </nav>
+
+  <dialog id="einstellungen" class="einstellungen" aria-labelledby="einstellungen-titel">
+    <form method="dialog">
+      <h2 id="einstellungen-titel">Einstellungen</h2>
+
+      <label class="zeile">
+        <input type="checkbox" id="e-animation">
+        <span>Animation</span>
+      </label>
+      <p class="hinweis" id="e-animation-hinweis" hidden>Das System wünscht weniger Bewegung. Deshalb ist die Animation standardmäßig aus.</p>
+
+      <label class="zeile">
+        <span>Geschwindigkeit</span>
+        <input type="range" id="e-tempo" min="0" max="5" step="1">
+        <output id="e-tempo-wert" for="e-tempo"></output>
+      </label>
+
+      <label class="zeile">
+        <input type="checkbox" id="e-invertiert">
+        <span>Invertiert (weiß auf schwarz)</span>
+      </label>
+
+      <label class="zeile">
+        <span>Automatisch weiter</span>
+        <select id="e-auto">
+          <option value="0">aus</option>
+          <option value="30">alle 30 Sekunden</option>
+          <option value="60">jede Minute</option>
+          <option value="120">alle 2 Minuten</option>
+          <option value="300">alle 5 Minuten</option>
+        </select>
+      </label>
+
+      <label class="zeile">
+        <span>Sitzung beenden nach</span>
+        <select id="e-sitzung">
+          <option value="0">aus</option>
+          <option value="3">3 Minuten</option>
+          <option value="5">5 Minuten</option>
+          <option value="10">10 Minuten</option>
+        </select>
+      </label>
+
+      <label class="zeile">
+        <input type="checkbox" id="e-touch">
+        <span>Tippen und Wischen wechselt das Bild</span>
+      </label>
+      <p class="hinweis">Aus: Berührung blendet nur diese Leiste ein. An: linkes Drittel zurück, rechtes Drittel weiter, Mitte Leiste, Wischen wechselt.</p>
+
+      <p class="hinweis" id="e-wach"></p>
+
+      <p class="hinweis">Tasten: Pfeile wechseln, Leertaste Animation, I invertiert, F Vollbild, + und − Geschwindigkeit.</p>
+
+      <p class="links">
+        <a href="druck.html">Druckansicht</a>
+        <a href="pruefen.html">Prüfseite</a>
+      </p>
+
+      <button type="submit" class="schliessen">Schließen</button>
+    </form>
+  </dialog>
+
+  <div id="datei-hinweis" class="datei-hinweis">
+    <h1>Kontrastbilder</h1>
+    <p>Diese Seite muss über einen lokalen Server geöffnet werden, nicht direkt als Datei.</p>
+    <p>Im Projektordner ausführen:</p>
+    <pre>python3 -m http.server 8000 --directory site</pre>
+    <p>Dann im Browser <code>http://localhost:8000</code> öffnen.</p>
+  </div>
+
+  <noscript><p class="datei-hinweis" style="display:block">Diese Seite braucht JavaScript.</p></noscript>
+</body>
+</html>

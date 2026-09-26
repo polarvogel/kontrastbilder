@@ -1,0 +1,112 @@
+/*
+ * Druckansicht: A4 hochkant, 10 mm Rand. Karten sind quadratisch mit einer
+ * feinen grauen Schnittkante. Die Kante gehört nicht zum Motiv.
+ */
+@page {
+  size: A4 portrait;
+  margin: 10mm;
+}
+
+:root {
+  --v: #000;
+  --h: #fff;
+  --karte: 90mm;
+  --spalten: 2;
+  --abstand: 6mm;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+body {
+  margin: 0;
+  background: #e8e8e8;
+  font-family: system-ui, sans-serif;
+  color: #111;
+}
+
+.steuerung {
+  max-width: 190mm;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.steuerung h1 {
+  margin: 0 0 0.3em;
+}
+
+.steuerung form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  align-items: center;
+}
+
+.steuerung label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.steuerung select,
+.steuerung button {
+  font: inherit;
+  padding: 4px 10px;
+}
+
+.hinweis {
+  font-size: 0.9em;
+  color: #444;
+}
+
+/* Bildschirmvorschau: jede Seite als weißes Blatt */
+.seite {
+  width: 190mm;
+  height: 277mm;
+  margin: 0 auto 16px;
+  background: #fff;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.2);
+  display: grid;
+  grid-template-columns: repeat(var(--spalten), var(--karte));
+  grid-auto-rows: var(--karte);
+  gap: var(--abstand);
+  place-content: center;
+  break-after: page;
+  overflow: hidden;
+}
+
+.seite:last-child {
+  break-after: auto;
+}
+
+.karte {
+  outline: 0.2mm dashed #999;
+}
+
+.karte .motiv {
+  width: 100%;
+  height: 100%;
+}
+
+.karte.invertiert {
+  --v: #fff;
+  --h: #000;
+}
+
+.karte.leer {
+  outline: none;
+}
+
+@media print {
+  body {
+    background: none;
+  }
+
+  .steuerung {
+    display: none;
+  }
+
+  .seite {
+    margin: 0;
+    box-shadow: none;
+  }
+}

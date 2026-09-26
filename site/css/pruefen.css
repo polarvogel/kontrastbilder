@@ -1,0 +1,80 @@
+:root {
+  --v: #000;
+  --h: #fff;
+  --kachel: 200px;
+}
+
+body {
+  margin: 0;
+  padding: 16px;
+  background: #d8d8d8;
+  font-family: system-ui, sans-serif;
+  color: #111;
+}
+
+header {
+  max-width: 60em;
+}
+
+.motiv-pruefung {
+  margin: 0 0 24px;
+  padding: 16px;
+  background: #f4f4f4;
+  border-radius: 8px;
+}
+
+.motiv-pruefung h2 {
+  margin: 0 0 12px;
+  font-size: 1.2em;
+}
+
+.kacheln {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.kachel {
+  margin: 0;
+  width: var(--kachel);
+}
+
+.kachel figcaption {
+  font-size: 0.85em;
+  margin-top: 4px;
+}
+
+.kachel .motiv {
+  width: var(--kachel);
+  height: var(--kachel);
+  outline: 1px solid #aaa;
+}
+
+.kachel.invertiert {
+  --v: #fff;
+  --h: #000;
+}
+
+/* Blur-Test: etwa 4 % der Kantenlänge, grob die Sehschärfe eines Neugeborenen auf Armlänge */
+.kachel.unscharf .motiv {
+  filter: blur(calc(var(--kachel) * 0.04));
+}
+
+.ergebnisse {
+  margin: 12px 0 0;
+  padding-left: 1.2em;
+  font-size: 0.9em;
+}
+
+.ergebnisse .fehler {
+  color: #b00000;
+  font-weight: 600;
+}
+
+.ergebnisse .hinweis {
+  color: #7a5000;
+}
+
+.ergebnisse .ok {
+  color: #1d6b1d;
+}

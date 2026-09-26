@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kontrastbilder – Druckansicht</title>
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/druck.css">
+  <script type="module" src="js/druck.js"></script>
+</head>
+<body>
+  <header class="steuerung">
+    <h1>Druckansicht</h1>
+    <p>Alle Motive als Karten für A4. Beim Drucken „Hintergrundgrafiken“ ist nicht nötig, die Motive sind Vektorgrafik.</p>
+    <form id="optionen">
+      <label>
+        Karten pro Seite
+        <select id="pro-seite">
+          <option value="1">1 (18 cm)</option>
+          <option value="2">2 (13 cm)</option>
+          <option value="4" selected>4 (9 cm)</option>
+          <option value="6">6 (8,5 cm)</option>
+        </select>
+      </label>
+      <label>
+        Seiten
+        <select id="variante">
+          <option value="normal">nur normal</option>
+          <option value="invertiert">nur invertiert</option>
+          <option value="beidseitig">beidseitig (Rückseite invertiert)</option>
+        </select>
+      </label>
+      <button type="button" id="drucken">Drucken</button>
+      <a href="./">Zurück zur Anzeige</a>
+    </form>
+    <p class="hinweis" id="hinweis-beidseitig" hidden>Beidseitig: im Druckdialog „beidseitig, lange Kante“ wählen. Auf jede Vorderseite folgt eine Rückseite mit denselben Motiven invertiert, spiegelverkehrt angeordnet, damit sie beim Wenden übereinanderliegen.</p>
+  </header>
+  <main id="seiten"></main>
+</body>
+</html>
