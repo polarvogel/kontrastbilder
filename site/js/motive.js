@@ -2,17 +2,22 @@
 
 import liste from "../motive/liste.js";
 import { leseFarben } from "./farben.js";
+import { t } from "./sprache.js";
 
 /**
  * @typedef {Object} MotivEintrag
  * @property {string} datei
- * @property {string} name
  * @property {boolean} [animation]
  * @property {number} [tempo]
  */
 
 /**
- * @typedef {MotivEintrag & { id: string, svg: string, farben: import("./farben.js").Farben }} Motiv
+ * @typedef {MotivEintrag & { id: string, name: string, svg: string, farben: import("./farben.js").Farben }} Motiv
+ */
+
+/*
+ * Namen der Motive stehen in sprachen/<code>.json unter "motive.<id>". Die Sprache
+ * muss vor dem Laden der Motive geladen sein (ladeSprache in sprache.js).
  */
 
 /*
@@ -55,9 +60,11 @@ export async function ladeMotiv(eintrag) {
   }
   const text = await antwort.text();
   const dokument = new DOMParser().parseFromString(text, "image/svg+xml");
+  const id = eintrag.datei.replace(/\.svg$/, "");
   return {
     ...eintrag,
-    id: eintrag.datei.replace(/\.svg$/, ""),
+    id,
+    name: t(`motive.${id}`),
     svg: text.replace(/<\?xml[^>]*\?>/, "").trim(),
     farben: leseFarben(dokument.documentElement),
   };

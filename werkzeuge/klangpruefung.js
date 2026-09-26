@@ -3,6 +3,7 @@
 import { KlangGraph, ladeWorklet } from "../site/js/klang.js";
 import liste from "../site/klaenge/liste.js";
 import { pruefeSchema } from "./schema.js";
+import { ladeSprache, hat, STANDARD } from "../site/js/sprache.js";
 
 /*
  * Prüft Klangbeschreibungen, die niemand anhören muss: Aufbau gegen das Schema,
@@ -120,8 +121,13 @@ function zusatzregeln(beschreibung) {
 async function pruefe(datei, schema) {
   /** @type {[string, string][]} */
   const befunde = [];
-  if (!liste.some((k) => k.datei === datei)) {
+  const inListe = liste.some((k) => k.datei === datei);
+  if (!inListe) {
     befunde.push(["HINWEIS", "Noch nicht in site/klaenge/liste.js eingetragen."]);
+  }
+  const id = datei.replace(/\.json$/, "");
+  if (!hat(`klaenge.${id}`)) {
+    befunde.push([inListe ? "FEHLER" : "HINWEIS", `Name fehlt in site/sprachen/de.json unter "klaenge" → "${id}".`]);
   }
   const antwort = await fetch(`../site/klaenge/${datei}`, { cache: "no-cache" });
   if (!antwort.ok) {
@@ -175,6 +181,7 @@ async function start() {
   const parameter = new URLSearchParams(location.search);
   const klang = parameter.get("klang");
   const datei = parameter.get("datei");
+  await ladeSprache(STANDARD);
   const schema = await (await fetch("klang.schema.json", { cache: "no-cache" })).json();
   const dateien = datei ? [datei] : klang ? [`${klang}.json`] : liste.map((k) => k.datei);
   /** @type {string[]} */

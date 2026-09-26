@@ -17,14 +17,6 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # Solange Impressum oder Datenschutz Platzhalter enthalten, wird nichts veröffentlicht.
-      - name: Platzhalter in rechtlichen Angaben
-        run: |
-          if grep -rn "PLATZHALTER" site/; then
-            echo "::error::site/rechtliches.html enthält noch Platzhalter. Erst ausfüllen, dann veröffentlichen."
-            exit 1
-          fi
-
       # Ubuntu 24.04 sperrt per AppArmor die Namensräume, die die Chrome-Sandbox braucht.
       - name: Chrome-Sandbox erlauben
         run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0

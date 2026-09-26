@@ -2,6 +2,8 @@
 
 import { ladeMotive, erzeugeMotiv, STIL_STATISCH } from "./motive.js";
 import { setzeFarben } from "./farben.js";
+import * as speicher from "./einstellungen.js";
+import { ladeSprache, waehleSprache, uebersetzeSeite } from "./sprache.js";
 
 /** @typedef {import("./motive.js").Motiv} Motiv */
 /** @typedef {"normal" | "invertiert" | "farbe"} Art */
@@ -125,6 +127,8 @@ function uebernehmeUrl() {
 }
 
 async function start() {
+  await ladeSprache(waehleSprache(speicher.laden().sprache));
+  uebersetzeSeite();
   uebernehmeUrl();
   motive = await ladeMotive();
   proSeite.addEventListener("change", aufbauen);

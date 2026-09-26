@@ -1,6 +1,7 @@
 // @ts-check
 
 import liste from "../klaenge/liste.js";
+import { t } from "./sprache.js";
 
 /*
  * Klangerzeuger. Baut aus einer Klangbeschreibung (JSON im Ordner klaenge/) einen
@@ -51,8 +52,8 @@ import liste from "../klaenge/liste.js";
  * @property {Welle[]} [wellen]
  *
  * @typedef {{ schichten: Schicht[] }} Beschreibung
- * @typedef {{ datei: string, name: string }} KlangEintrag
- * @typedef {KlangEintrag & { id: string, beschreibung: Beschreibung }} Klang
+ * @typedef {{ datei: string }} KlangEintrag
+ * @typedef {KlangEintrag & { id: string, name: string, beschreibung: Beschreibung }} Klang
  */
 
 /* Vorlauf für zufällige Schwankungen, die der Haupt-Thread einplant */
@@ -75,7 +76,8 @@ export async function ladeKlaenge() {
       if (!antwort.ok) {
         throw new Error(`HTTP ${antwort.status}`);
       }
-      return { ...eintrag, id: eintrag.datei.replace(/\.json$/, ""), beschreibung: await antwort.json() };
+      const id = eintrag.datei.replace(/\.json$/, "");
+      return { ...eintrag, id, name: t(`klaenge.${id}`), beschreibung: await antwort.json() };
     }),
   );
   /** @type {Klang[]} */

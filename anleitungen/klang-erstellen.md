@@ -4,13 +4,13 @@ Diese Anleitung richtet sich an ein Sprachmodell mit Dateizugriff und Shell. Arb
 
 ## Auftrag
 
-- Ergebnis: genau eine neue Datei `site/klaenge/<id>.json` und genau eine neue Zeile in `site/klaenge/liste.js`.
+- Ergebnis: genau eine neue Datei `site/klaenge/<id>.json`, genau eine neue Zeile in `site/klaenge/liste.js` und genau ein neuer Eintrag in `site/sprachen/de.json` unter `klaenge` (Anzeigename).
 - `<id>`: Kleinbuchstaben a–z, Ziffern, Bindestrich. Umlaute ausschreiben (`waesserchen`).
 - Keine anderen Dateien ändern. Die Klangerzeugung (`site/js/klang.js`, `site/js/klang-worklet.js`) nicht anfassen. Kann das Format einen Klang nicht ausdrücken, sag das, statt Code zu ändern.
 
 ## Kontext
 
-Die Seite spielt Säuglingen beruhigende Klänge: Rauschen, Naturklänge, einzelne langsame Töne. Nichts ist aufgenommen, jede JSON-Datei beschreibt, wie der Klang live erzeugt wird. Du kannst das Ergebnis nicht hören. Verlass dich deshalb auf die Messung des Prüfwerkzeugs und auf die bewährten Ausgangswerte unten, und bleib im Zweifel leiser, langsamer und weicher.
+Die Seite spielt Säuglingen beruhigende Klänge: Rauschen, Naturklänge, einzelne langsame Töne. Nutzer können mehrere Klänge gleichzeitig anhaken und mischen (z. B. Regen + Herzschlag + Xylophon). Ein Klang soll deshalb für sich stehen und gut mit anderen zusammenpassen: ein Instrument enthält kein Rauschbett, ein Naturklang keine Melodie. Nichts ist aufgenommen, jede JSON-Datei beschreibt, wie der Klang live erzeugt wird. Du kannst das Ergebnis nicht hören. Verlass dich deshalb auf die Messung des Prüfwerkzeugs und auf die bewährten Ausgangswerte unten, und bleib im Zweifel leiser, langsamer und weicher.
 
 ## Vorgehen
 
@@ -29,7 +29,7 @@ Die Seite spielt Säuglingen beruhigende Klänge: Rauschen, Naturklänge, einzel
    python3 werkzeuge/pruefen.py klang <id>.json
    ```
 5. Behebe alle `FEHLER`. Folge Pegel-Hinweisen: Das Werkzeug nennt einen Faktor, mit dem du alle `pegel` multiplizierst. Prüfe erneut, bis 0 Fehler und keine Pegel-Hinweise mehr kommen.
-6. Trage die Zeile in `site/klaenge/liste.js` ein: `{ datei: "<id>.json", name: "<Anzeigename>" },`.
+6. Trage die Zeile in `site/klaenge/liste.js` ein: `{ datei: "<id>.json" },`. Trage den Anzeigenamen in `site/sprachen/de.json` im Objekt `klaenge` ein: `"<id>": "<Anzeigename>"`, in weiteren Sprachdateien übersetzt.
 7. Abschlussprüfung, sie muss `0 Fehler` melden und den Rückgabewert 0 liefern:
    ```bash
    python3 werkzeuge/pruefen.py klang <id>
@@ -119,5 +119,5 @@ MIDI-Umrechnung: 60 = c' (262 Hz), 69 = a' (440 Hz), +12 = eine Oktave höher.
 - [ ] `python3 werkzeuge/pruefen.py klang <id>` meldet 0 Fehler, Effektivwert im Zielbereich.
 - [ ] Töne langsam (gemessene Abstände ≥ 0,5 s), keine Akkorde.
 - [ ] Nichts Plötzliches, nichts Schrilles.
-- [ ] Zeile in `site/klaenge/liste.js`, sonst keine Datei geändert.
+- [ ] Zeile in `site/klaenge/liste.js`, Name in `site/sprachen/de.json`, sonst keine Datei geändert.
 - [ ] Im Bericht erwähnt, dass ein Mensch den Klang anhören muss.

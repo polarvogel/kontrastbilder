@@ -3,40 +3,41 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Kontrastbilder – Druckansicht</title>
+  <!-- Deutsche Texte im HTML sind nur der Rückfall ohne JavaScript. Maßgeblich ist sprachen/de.json. -->
+  <title data-i18n="druck.seitentitel">Kontrastbilder – Druckansicht</title>
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/druck.css">
   <script type="module" src="js/druck.js"></script>
 </head>
 <body>
   <header class="steuerung">
-    <h1>Druckansicht</h1>
-    <p>Alle Motive als Karten für A4. Die Option „Hintergrundgrafiken“ im Druckdialog wird nicht gebraucht, die Motive sind Vektorgrafik.</p>
+    <h1 data-i18n="druck.ueberschrift">Druckansicht</h1>
+    <p data-i18n="druck.text">Alle Motive als Karten für A4. Die Option „Hintergrundgrafiken“ im Druckdialog wird nicht gebraucht, die Motive sind Vektorgrafik.</p>
     <form id="optionen">
       <label>
-        Karten pro Seite
+        <span data-i18n="druck.proSeite">Karten pro Seite</span>
         <select id="pro-seite">
-          <option value="1">1 (18 cm)</option>
-          <option value="2">2 (13 cm)</option>
-          <option value="4" selected>4 (9 cm)</option>
-          <option value="6">6 (8,5 cm)</option>
+          <option value="1" data-i18n="druck.pro1">1 (18 cm)</option>
+          <option value="2" data-i18n="druck.pro2">2 (13 cm)</option>
+          <option value="4" selected data-i18n="druck.pro4">4 (9 cm)</option>
+          <option value="6" data-i18n="druck.pro6">6 (8,5 cm)</option>
         </select>
       </label>
       <label>
-        Seiten
+        <span data-i18n="druck.seiten">Seiten</span>
         <select id="variante">
-          <option value="normal">schwarz-weiß</option>
-          <option value="invertiert">invertiert</option>
-          <option value="farbe">farbig</option>
-          <option value="beidseitig">beidseitig: vorne schwarz-weiß, hinten invertiert</option>
-          <option value="farbe-sw">beidseitig: vorne farbig, hinten schwarz-weiß</option>
+          <option value="normal" data-i18n="druck.normal">schwarz-weiß</option>
+          <option value="invertiert" data-i18n="druck.invertiert">invertiert</option>
+          <option value="farbe" data-i18n="druck.farbe">farbig</option>
+          <option value="beidseitig" data-i18n="druck.beidseitig">beidseitig: vorne schwarz-weiß, hinten invertiert</option>
+          <option value="farbe-sw" data-i18n="druck.farbeSw">beidseitig: vorne farbig, hinten schwarz-weiß</option>
         </select>
       </label>
-      <button type="button" id="drucken">Drucken</button>
-      <a href="./">Zurück zur Anzeige</a>
-      <a href="rechtliches.html">Impressum und Datenschutz</a>
+      <button type="button" id="drucken" data-i18n="druck.drucken">Drucken</button>
+      <a href="./" data-i18n="druck.zurueck">Zurück zur Anzeige</a>
+      <a href="hinweise.html" data-i18n="druck.hinweise">Hinweise und Datenschutz</a>
     </form>
-    <p class="hinweis" id="hinweis-beidseitig" hidden>Beidseitig: im Druckdialog „beidseitig, lange Kante“ wählen. Auf jede Vorderseite folgt eine Rückseite mit denselben Motiven, spiegelverkehrt angeordnet, damit sie beim Wenden übereinanderliegen.</p>
+    <p class="hinweis" id="hinweis-beidseitig" hidden data-i18n="druck.beidseitigHinweis">Beidseitig: im Druckdialog „beidseitig, lange Kante“ wählen. Auf jede Vorderseite folgt eine Rückseite mit denselben Motiven, spiegelverkehrt angeordnet, damit sie beim Wenden übereinanderliegen.</p>
   </header>
   <main id="seiten"></main>
 </body>

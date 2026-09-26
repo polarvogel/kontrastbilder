@@ -8,16 +8,17 @@
  * aktuellen Stand, offline den zuletzt geladenen. Beim Installieren werden
  * die Seiten, der Code und alle Motive aus der Liste vorab gespeichert.
  *
- * Neue JS- oder CSS-Dateien hier in SEITE eintragen. Motive und Klänge kommen
- * automatisch aus motive/liste.js und klaenge/liste.js.
+ * Neue JS- oder CSS-Dateien hier in SEITE eintragen. Motive, Klänge und Sprachen
+ * kommen automatisch aus motive/liste.js, klaenge/liste.js und sprachen/liste.js.
  */
 
 import liste from "./motive/liste.js";
 import klaenge from "./klaenge/liste.js";
+import sprachen from "./sprachen/liste.js";
 
 const sw = /** @type {ServiceWorkerGlobalScope} */ (/** @type {unknown} */ (self));
 
-const CACHE = "kontrastbilder-v2";
+const CACHE = "kontrastbilder-v3";
 
 const SEITE = [
   "./",
@@ -34,8 +35,8 @@ const SEITE = [
   "js/wachhalten.js",
   "js/farben.js",
   "js/sprache.js",
+  "js/hinweise.js",
   "sprachen/liste.js",
-  "sprachen/de.json",
   "js/klang.js",
   "js/klang-worklet.js",
   "js/druck.js",
@@ -50,7 +51,12 @@ const SEITE = [
 ];
 
 sw.addEventListener("install", (ereignis) => {
-  const dateien = [...SEITE, ...liste.map((m) => `motive/${m.datei}`), ...klaenge.map((k) => `klaenge/${k.datei}`)];
+  const dateien = [
+    ...SEITE,
+    ...liste.map((m) => `motive/${m.datei}`),
+    ...klaenge.map((k) => `klaenge/${k.datei}`),
+    ...sprachen.map((s) => `sprachen/${s.code}.json`),
+  ];
   ereignis.waitUntil(
     caches
       .open(CACHE)

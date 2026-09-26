@@ -3,6 +3,7 @@
 import { ladeMotive, ladeMotiv, erzeugeMotiv, STIL_STATISCH } from "./motive.js";
 import motivListe from "../motive/liste.js";
 import { PALETTE, ROLLEN as FARBROLLEN, MAX_FARBEN, wirksameFarben, kontrast, setzeFarben } from "./farben.js";
+import { ladeSprache, hat, STANDARD } from "./sprache.js";
 
 /** @typedef {import("./motive.js").Motiv} Motiv */
 /** @typedef {{ art: "fehler" | "hinweis" | "ok", text: string }} Befund */
@@ -329,8 +330,9 @@ async function start() {
   const zeilen = [];
   let fehler = 0;
   let hinweise = 0;
+  await ladeSprache(STANDARD);
   if (datei) {
-    motive = [await ladeMotiv({ datei, name: datei })];
+    motive = [await ladeMotiv({ datei })];
     if (!motivListe.some((m) => m.datei === datei)) {
       zeilen.push(`${datei}: HINWEIS Noch nicht in motive/liste.js eingetragen.`);
       hinweise += 1;
@@ -347,6 +349,12 @@ async function start() {
   }
   for (const motiv of motive) {
     const befunde = await pruefeMotiv(motiv);
+    if (!hat(`motive.${motiv.id}`)) {
+      befunde.unshift({
+        art: datei ? "hinweis" : "fehler",
+        text: `Name fehlt in sprachen/de.json unter "motive" → "${motiv.id}".`,
+      });
+    }
     fehler += befunde.filter((b) => b.art === "fehler").length;
     hinweise += befunde.filter((b) => b.art === "hinweis").length;
     zeilen.push(...befunde.map((b) => `${motiv.datei}: ${b.art.toUpperCase()} ${b.text}`));

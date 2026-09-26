@@ -3,8 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Kontrastbilder – Impressum und Datenschutz</title>
+  <!-- Deutsche Texte im HTML sind nur der Rückfall ohne JavaScript. Maßgeblich ist sprachen/de.json. -->
+  <title data-i18n="hinweise.seitentitel">Kontrastbilder – Hinweise und Datenschutz</title>
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <script type="module" src="js/hinweise.js"></script>
   <style>
     body {
       max-width: 44em;
@@ -31,34 +33,27 @@
   </style>
 </head>
 <body>
-  <p><a href="./">Zurück zu den Kontrastbildern</a></p>
+  <p><a href="./" data-i18n="hinweise.zurueck">Zurück zu den Kontrastbildern</a></p>
 
-  <h1>Impressum</h1>
-  <!-- Angaben nach § 18 Abs. 1 Medienstaatsvertrag. Keine Postfachadresse. -->
-  <p>
-    [PLATZHALTER: Vor- und Nachname]<br>
-    [PLATZHALTER: Straße und Hausnummer]<br>
-    [PLATZHALTER: Postleitzahl und Ort]<br>
-    E-Mail: [PLATZHALTER: E-Mail-Adresse]
-  </p>
-  <p>Privates, nicht-kommerzielles Angebot ohne Werbung.</p>
+  <h1 data-i18n="hinweise.ueberschrift">Hinweise und Datenschutz</h1>
 
-  <h1>Datenschutz</h1>
+  <h2 data-i18n="hinweise.projektTitel">Über dieses Projekt</h2>
+  <p data-i18n="hinweise.projekt">Kontrastbilder ist ein privates, nicht-kommerzielles Forschungsprojekt ohne Werbung. Quelltext, Motive, Klänge, Anleitungen und Werkzeuge liegen offen im GitHub-Repository und stehen unter CC0 1.0: Jeder darf alles damit machen, auch ohne Namensnennung.</p>
+  <!-- Der Link wird auf github.io aus der Adresse der Seite abgeleitet (siehe js/hinweise.js) -->
+  <p id="repo-absatz" hidden><a id="repo" href="https://github.com/" data-i18n="hinweise.repo">Zum GitHub-Repository</a></p>
 
-  <h2>Verantwortlich</h2>
-  <p>Die im Impressum genannte Person.</p>
+  <h2 data-i18n="hinweise.datenTitel">Was diese Seite verarbeitet</h2>
+  <p data-i18n="hinweise.daten1">Diese Seite setzt keine Cookies, verwendet kein Tracking und keine Analyse und lädt keine Inhalte von anderen Anbietern. Bilder, Klänge und Programmcode kommen ausschließlich von dieser Adresse. Klänge werden im Gerät erzeugt, es wird nichts aufgenommen oder übertragen.</p>
+  <p data-i18n="hinweise.daten2">Einstellungen (zum Beispiel Invertierung, Farbe, Klänge, Lautstärke, zuletzt gezeigtes Bild) speichert der Browser im lokalen Speicher des Geräts. Damit die Seite auch ohne Internetverbindung funktioniert, legt der Browser außerdem die Dateien der Seite in einem Zwischenspeicher ab (Service Worker). Beides verlässt das Gerät nicht, ist für die gewünschte Funktion erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG) und lässt sich jederzeit über die Einstellungen des Browsers löschen („Websitedaten löschen“).</p>
 
-  <h2>Was diese Seite selbst verarbeitet</h2>
-  <p>Diese Seite setzt keine Cookies, verwendet kein Tracking und keine Analyse und lädt keine Inhalte von anderen Anbietern. Bilder, Klänge und Programmcode kommen ausschließlich von dieser Adresse. Klänge werden im Gerät erzeugt, es wird nichts aufgenommen oder übertragen.</p>
-  <p>Ihre Einstellungen (zum Beispiel Invertierung, Farbe, Lautstärke, zuletzt gezeigtes Bild) speichert Ihr Browser im lokalen Speicher Ihres Geräts. Damit die Seite auch ohne Internetverbindung funktioniert, legt Ihr Browser außerdem die Dateien der Seite in einem Zwischenspeicher ab (Service Worker). Beides verlässt Ihr Gerät nicht, ist für die von Ihnen gewünschte Funktion erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG) und lässt sich jederzeit über die Einstellungen Ihres Browsers löschen („Websitedaten löschen“).</p>
+  <h2 data-i18n="hinweise.hostingTitel">Hosting durch GitHub Pages</h2>
+  <p data-i18n="hinweise.hosting">Die Seite wird über GitHub Pages bereitgestellt, einen Dienst der GitHub, Inc., 88 Colin P. Kelly Jr. St., San Francisco, CA 94107, USA. Beim Aufruf verarbeitet GitHub technisch notwendige Daten, insbesondere die IP-Adresse, und speichert sie nach eigenen Angaben für Sicherheitszwecke. GitHub ist nach dem EU-U.S. Data Privacy Framework zertifiziert. Einzelheiten stehen in der Datenschutzerklärung von GitHub.</p>
+  <p><a href="https://docs.github.com/site-policy/privacy-policies/github-privacy-statement" data-i18n="hinweise.githubDatenschutz">Datenschutzerklärung von GitHub</a></p>
 
-  <h2>Hosting durch GitHub Pages</h2>
-  <p>Die Seite wird über GitHub Pages bereitgestellt, einen Dienst der GitHub, Inc., 88 Colin P. Kelly Jr. St., San Francisco, CA 94107, USA. Beim Aufruf verarbeitet GitHub technisch notwendige Daten, insbesondere Ihre IP-Adresse, und speichert sie nach eigenen Angaben für Sicherheitszwecke. Rechtsgrundlage ist das berechtigte Interesse an einer sicheren und kostenlosen Bereitstellung der Seite (Art. 6 Abs. 1 lit. f DSGVO). GitHub ist nach dem EU-U.S. Data Privacy Framework zertifiziert, auf dessen Grundlage die Übermittlung in die USA erfolgt. Einzelheiten: <a href="https://docs.github.com/site-policy/privacy-policies/github-privacy-statement">Datenschutzerklärung von GitHub</a>.</p>
+  <h2 data-i18n="hinweise.kontaktTitel">Kontakt</h2>
+  <p data-i18n="hinweise.kontakt">Fragen und Hinweise bitte über das GitHub-Repository (Issues).</p>
 
-  <h2>Ihre Rechte</h2>
-  <p>Sie haben das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung Ihrer Daten, auf Widerspruch gegen die Verarbeitung sowie auf Beschwerde bei einer Datenschutz-Aufsichtsbehörde. Wenden Sie sich dazu an die im Impressum genannte Person. Da diese Seite selbst keine Daten über Sie erhebt, betreffen Anfragen zu den Zugriffsprotokollen in der Regel GitHub.</p>
-
-  <h2>Hinweis zur Nutzung</h2>
-  <p>Die Bilder und Klänge ersetzen keine ärztliche Beratung. Klänge bitte leise einstellen und das Gerät nicht direkt neben das Kind legen.</p>
+  <h2 data-i18n="hinweise.nutzungTitel">Hinweis zur Nutzung</h2>
+  <p data-i18n="hinweise.nutzung">Die Bilder und Klänge ersetzen keine ärztliche Beratung. Klänge bitte leise einstellen und das Gerät nicht direkt neben das Kind legen.</p>
 </body>
 </html>

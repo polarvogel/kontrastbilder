@@ -4,7 +4,7 @@ Diese Anleitung richtet sich an ein Sprachmodell mit Dateizugriff und Shell. Arb
 
 ## Auftrag
 
-- Ergebnis: genau eine neue Datei `site/motive/<id>.svg` und genau eine neue Zeile in `site/motive/liste.js`.
+- Ergebnis: genau eine neue Datei `site/motive/<id>.svg`, genau eine neue Zeile in `site/motive/liste.js` und genau ein neuer Eintrag in `site/sprachen/de.json` unter `motive` (Anzeigename).
 - `<id>`: Kleinbuchstaben a–z, Ziffern, Bindestrich. Umlaute ausschreiben (`schildkroete`). Die id ist der Dateiname ohne `.svg`.
 - Keine anderen Dateien ändern. Kein Build, keine Abhängigkeiten, keine Bilder aus dem Netz.
 
@@ -26,7 +26,7 @@ Die Seite zeigt Säuglingen (0–4 Monate) ein Motiv nach dem anderen bildschirm
    ```
    Wenn du Bilder ansehen kannst: Öffne das PNG. Es zeigt normal, invertiert, Farbmodus, Ruhepose und Endpose. Beurteile es mit der Checkliste unten.
 5. Behebe alle `FEHLER` und prüfe erneut, bis 0 Fehler gemeldet werden. Ein `HINWEIS` darf bleiben, wenn du ihn begründen kannst.
-6. Trage die Zeile in `site/motive/liste.js` ein: `{ datei: "<id>.svg", name: "<Anzeigename>" },`. Die Position bestimmt die Reihenfolge: einfache Formen vorn, Tiere mit Details hinten.
+6. Trage die Zeile in `site/motive/liste.js` ein: `{ datei: "<id>.svg" },`. Die Position bestimmt die Reihenfolge: einfache Formen vorn, Tiere mit Details hinten. Trage den Anzeigenamen in `site/sprachen/de.json` im Objekt `motive` ein: `"<id>": "<Anzeigename>"`. Gibt es weitere Sprachdateien in `site/sprachen/`, dort ebenfalls (übersetzt).
 7. Abschlussprüfung mit der id, danach muss die Ausgabe `0 Fehler` enthalten und der Rückgabewert 0 sein:
    ```bash
    python3 werkzeuge/pruefen.py motiv <id>
@@ -112,4 +112,4 @@ Optional, aber erwünscht.
 - [ ] Teile, die sich überlappen und gleichfarbig sind, sind durch weiße Kanten getrennt, wo sie erkennbar bleiben müssen.
 - [ ] Bewegung langsam, klein, nur ein Teil. Endpose sieht gut aus.
 - [ ] Invertiert und im Farbmodus stimmig. Höchstens 4 Farben.
-- [ ] Zeile in `site/motive/liste.js`, sonst keine Datei geändert.
+- [ ] Zeile in `site/motive/liste.js`, Name in `site/sprachen/de.json`, sonst keine Datei geändert.

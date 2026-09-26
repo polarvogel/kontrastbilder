@@ -1,8 +1,10 @@
 # Kontrastbilder
 
-Schwarz-weiße Kontrastbilder für Säuglinge (ca. 0–4 Monate), eines nach dem anderen im Vollbild, teilweise sehr langsam animiert. Optional mit Farbmodus (höchstens 4 Farben pro Bild) und live erzeugten Klängen (Rauschen, Meer, Regen, Herzschlag, Xylophon). Statische Webseite ohne Abhängigkeiten, ohne Build-Schritt, ohne Netzwerkzugriffe zur Laufzeit.
+Schwarz-weiße Kontrastbilder für Säuglinge (ca. 0–4 Monate), eines nach dem anderen im Vollbild, teilweise sehr langsam animiert. Optional mit Farbmodus (höchstens 4 Farben pro Bild) und live erzeugten Klängen (Rauschen, Meer, Regen, Herzschlag, Xylophon), die sich beliebig mischen lassen. Statische Webseite ohne Abhängigkeiten, ohne Build-Schritt, ohne Netzwerkzugriffe zur Laufzeit. Alle Texte sind übersetzbar, derzeit gibt es Deutsch.
 
-Stand: 20 Motive, davon 14 animiert. GitHub-Pages-Deployment folgt.
+Privates Forschungsprojekt, frei unter [CC0 1.0](LICENSE): Jeder darf alles damit machen.
+
+Stand: 20 Motive (14 animiert), 5 Klänge, Sprache Deutsch.
 
 ## Lokal testen
 
@@ -39,7 +41,7 @@ Für einen vollständigen Test auf dem Handy braucht es https. Der saubere Weg i
 | Geschwindigkeit | `+` / `−` | Einstellungen |
 | Leiste einblenden | jede andere Taste | Mausbewegung, Berühren |
 
-Einstellungen (Leiste, rechter Knopf): Animation, Geschwindigkeit, invertiert, Farbe, automatisch weiter (1, 3, 5 oder 10 Minuten), Sitzungs-Timer (3, 5 oder 10 Minuten), Touch-Navigation (Standard: aus, damit das Baby beim Anfassen nichts umschaltet). Einstellungen bleiben im Browser gespeichert.
+Einstellungen (Leiste, rechter Knopf): Animation, Geschwindigkeit, invertiert, Farbe, Klänge (mehrere gleichzeitig anhaken, Anteil je Klang, Gesamtlautstärke), automatisch weiter (1, 3, 5 oder 10 Minuten), Sitzungs-Timer (3, 5 oder 10 Minuten), Touch-Navigation (Standard: aus, damit das Baby beim Anfassen nichts umschaltet). Einstellungen bleiben im Browser gespeichert.
 
 Weitere Seiten:
 
@@ -50,13 +52,15 @@ Weitere Seiten:
 
 ```
 site/
-  index.html, druck.html, pruefen.html
+  index.html, druck.html, pruefen.html, hinweise.html (Datenschutz, Projekt)
   css/            app.css, druck.css, pruefen.css
   js/             app.js (Anzeige), motive.js (Laden/Einbetten), farben.js (Palette), einstellungen.js,
                   klang.js (Klangerzeuger), klang-worklet.js (Erzeugung im Audio-Thread),
-                  wachhalten.js (Screen Wake Lock), druck.js, pruefen.js
+                  wachhalten.js (Screen Wake Lock), sprache.js (Übersetzung), druck.js, pruefen.js,
+                  hinweise.js
   motive/         liste.js (Reihenfolge) und eine SVG-Datei pro Motiv
   klaenge/        liste.js (Reihenfolge) und eine JSON-Datei pro Klang
+  sprachen/       liste.js (verfügbare Sprachen) und eine JSON-Datei pro Sprache (de.json)
   sw.js           Service Worker (offline), manifest.webmanifest, icons/
 ```
 
@@ -66,7 +70,8 @@ Jedes Motiv wird in einen eigenen Shadow Root eingebettet. Dadurch stören sich 
 
 1. SVG-Datei in `site/motive/` anlegen, am einfachsten eine bestehende kopieren (z. B. `kreis.svg`).
 2. Eine Zeile in `site/motive/liste.js` ergänzen. Die Position in der Liste bestimmt die Reihenfolge. Optional `animation: false` oder `tempo: 0.8`.
-3. `pruefen.html` öffnen und Befunde beheben.
+3. Den Anzeigenamen in `site/sprachen/de.json` unter `motive` eintragen, Schlüssel ist der Dateiname ohne `.svg`.
+4. `python3 werkzeuge/pruefen.py motiv <id>` ausführen oder `pruefen.html` öffnen und Befunde beheben.
 
 Regeln für die SVG-Datei (prüft `pruefen.html` automatisch):
 
@@ -134,6 +139,7 @@ Die Prüfseite gibt einen Hinweis, wenn eine Farbe sich hell/dunkel kaum vom Hin
 
 Alle Klänge entstehen live im Gerät mit der Web Audio API, es gibt keine Audiodateien. Dauerrauschen und Ereignisse (Töne, Rauschstöße) entstehen Probe für Probe im AudioWorklet (`js/klang-worklet.js`), also im Audio-Thread. Dadurch läuft der Klang weiter, auch wenn der Browser im Hintergrund oder bei gesperrtem Bildschirm Timer anhält. `js/klang.js` baut aus der JSON-Beschreibung den Graphen mit Filtern und langsamen Schwankungen.
 
+- Mischpult: Jeder Klang lässt sich einzeln anhaken, mehrere laufen gleichzeitig (z. B. Regen + Herzschlag + Xylophon). Der Regler neben jedem Klang bestimmt seinen Anteil. Damit die Summe nicht lauter wird, sinkt der Gesamtpegel mit 1/√Anzahl. Anhaken schaltet den Klang ein, Abhaken des letzten aus. Die Taste `T` und der Lautsprecher-Knopf schalten alle gewählten Klänge an oder aus.
 - Ton startet erst nach der ersten Bedienung (Tippen, Taste), das verlangen alle Browser. War der Klang beim letzten Mal an, beginnt er bei der ersten Berührung.
 - Ein- und Ausblenden dauern 1–2 s, beim Wechsel wird übergeblendet. Ein Begrenzer im Ausgang verhindert Übersteuern.
 - Der Klang läuft nach dem Sitzungs-Timer weiter (zum Einschlafen).
@@ -142,7 +148,7 @@ Alle Klänge entstehen live im Gerät mit der Web Audio API, es gibt keine Audio
 
 ### Neuer Klang
 
-JSON-Datei in `site/klaenge/` anlegen und eine Zeile in `site/klaenge/liste.js` ergänzen. Beispiel `xylophon.json`, ein ausklingender Ton pro Sekunde (±250 ms):
+JSON-Datei in `site/klaenge/` anlegen, eine Zeile in `site/klaenge/liste.js` ergänzen und den Anzeigenamen in `site/sprachen/de.json` unter `klaenge` eintragen. Beispiel `xylophon.json`, ein ausklingender Ton pro Sekunde (±250 ms):
 
 ```json
 {
@@ -182,6 +188,17 @@ Stimme `"art": "rauschen"`: kurzer Rauschstoß mit eigenen `filter` (Frequenz au
 
 Die Pegel der vorhandenen Klänge sind so eingestellt, dass alle etwa gleich laut sind (rund −20 dB Effektivwert, Spitzen unter −3 dB). Neue Klänge danach ausrichten.
 
+## Sprachen
+
+Alle sichtbaren Texte stehen in `site/sprachen/<code>.json`, auch die Namen der Motive und Klänge. `site/js/sprache.js` lädt die Sprache (gespeicherte Wahl, sonst Browsersprache, sonst Deutsch) und setzt die Texte in Elemente mit `data-i18n="schluessel"` bzw. Attribute mit `data-i18n-attr="title=schluessel"`. Im HTML stehen deutsche Texte nur als Rückfall ohne JavaScript. Fehlende Texte einer Sprache fallen auf Deutsch zurück.
+
+Neue Sprache:
+
+1. `site/sprachen/de.json` nach `site/sprachen/<code>.json` kopieren (z. B. `en.json`) und alle Werte übersetzen, die Schlüssel bleiben. Platzhalter wie `{name}` unverändert lassen.
+2. In `site/sprachen/liste.js` eine Zeile ergänzen, z. B. `{ code: "en", name: "English" }`. Der Offline-Cache übernimmt die Datei automatisch.
+
+Ab zwei Sprachen erscheint in den Einstellungen eine Auswahl. Prüfseite, Werkzeuge und Anleitungen bleiben Deutsch.
+
 ## Werkzeuge und Anleitungen für KI-Agenten
 
 - `AGENTS.md`: Einstieg für KI-Agenten (Codex, Copilot, Cursor, Gemini CLI u. a.). `CLAUDE.md` verweist für Claude Code darauf.
@@ -192,11 +209,11 @@ Die Pegel der vorhandenen Klänge sind so eingestellt, dass alle etwa gleich lau
 
 ## Offline und Deployment
 
-Der Service Worker speichert Seiten, Code und alle Motive aus `liste.js` beim ersten Besuch. Er ist nur über `https` oder `localhost` aktiv. Neue JS- oder CSS-Dateien in `SEITE` in `site/sw.js` eintragen, Motive und Klänge kommen automatisch dazu.
+Der Service Worker speichert Seiten, Code und alle Motive aus `liste.js` beim ersten Besuch. Er ist nur über `https` oder `localhost` aktiv. Neue JS- oder CSS-Dateien in `SEITE` in `site/sw.js` eintragen, Motive, Klänge und Sprachen kommen automatisch dazu.
 
 ### GitHub Pages
 
-Der Workflow `.github/workflows/pages.yml` prüft bei jedem Push auf `main` alle Motive und Klänge (`werkzeuge/pruefen.py` mit Chrome auf dem Runner) und veröffentlicht danach den Ordner `site/`. Bei Pull Requests wird nur geprüft. Solange `site/rechtliches.html` Platzhalter enthält, bricht die Prüfung ab und nichts wird veröffentlicht.
+Der Workflow `.github/workflows/pages.yml` prüft bei jedem Push auf `main` alle Motive und Klänge (`werkzeuge/pruefen.py` mit Chrome auf dem Runner) und veröffentlicht danach den Ordner `site/`. Bei Pull Requests wird nur geprüft.
 
 Einmalig einrichten (Repo-Name hier `kontrastbilder`):
 
@@ -222,12 +239,9 @@ Weiterarbeiten: ändern, `python3 werkzeuge/pruefen.py motiv` bzw. `klang` ausf�
 
 Mit GitHub Free geht Pages nur aus öffentlichen Repos. Die Seite selbst ist bei GitHub Pages immer öffentlich.
 
-## Rechtliches
+## Lizenz, Datenschutz, Herkunft
 
-Keine Rechtsberatung, sondern eine Einschätzung nach den Quellen, die beim Einrichten recherchiert wurden.
-
-- **Impressum:** Eine öffentlich erreichbare Seite dient nicht mehr „ausschließlich persönlichen oder familiären Zwecken“. Nach § 18 Abs. 1 Medienstaatsvertrag sind dann Name und Anschrift anzugeben (kein Postfach), auch ohne Werbung und Gewinnabsicht. § 5 DDG (geschäftsmäßige Angebote) greift bei einer rein privaten, werbefreien Seite dagegen nicht. Die Angaben gehören in `site/rechtliches.html`.
-- **Datenschutz:** Die Seite selbst erhebt nichts, lädt nichts von Dritten und setzt keine Cookies. Einstellungen und Offline-Cache bleiben im Gerät und sind für die gewünschte Funktion nötig (§ 25 Abs. 2 Nr. 2 TDDDG). GitHub protokolliert bei jedem Aufruf die IP-Adresse. Das steht in den Datenschutzhinweisen in `site/rechtliches.html`.
-- **Urheberrecht:** Motive, Klänge, Icons und Code sind für dieses Projekt neu erstellt, es gibt keine fremden Bibliotheken, Schriften oder Bilder. Kontrastkarten als Stil sind nicht geschützt, konkrete fremde Motive wurden nicht übernommen. Der Rosa-Rausch-Filter (Paul Kellet) und die Filterformeln (Audio EQ Cookbook) sind veröffentlichte mathematische Verfahren, die Quelle steht jeweils im Code.
-- **Lizenz:** Ohne Lizenzdatei gilt „alle Rechte vorbehalten“. Andere dürfen den Code auf GitHub ansehen, aber nicht weiterverwenden.
-- **Nicht ins Repo:** persönliche Daten, lokale Pfade, Zugangsdaten. Commits laufen über die GitHub-noreply-Adresse.
+- **Lizenz:** [CC0 1.0 Universal](LICENSE). Der Urheber verzichtet auf alle Rechte, soweit das möglich ist. Jeder darf Code, Motive, Klänge, Anleitungen und Werkzeuge ohne Namensnennung und ohne Einschränkung nutzen, ändern und weitergeben, auch kommerziell. Beiträge zu diesem Repository stehen ebenfalls unter CC0.
+- **Datenschutz:** Die Seite selbst erhebt nichts, lädt nichts von Dritten und setzt keine Cookies. Einstellungen und Offline-Cache bleiben im Gerät. GitHub Pages protokolliert beim Aufruf die IP-Adresse. Einzelheiten stehen in `site/hinweise.html`.
+- **Herkunft:** Motive, Klänge, Icons und Code sind für dieses Projekt neu erstellt, es gibt keine fremden Bibliotheken, Schriften oder Bilder. Der Rosa-Rausch-Filter (Paul Kellet) und die Filterformeln (Audio EQ Cookbook) sind veröffentlichte mathematische Verfahren, die Quelle steht jeweils im Code.
+- **Nicht ins Repo:** persönliche Daten, lokale Pfade, Zugangsdaten.

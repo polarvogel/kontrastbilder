@@ -1,6 +1,6 @@
 # Kontrastbilder – Hinweise für KI-Agenten
 
-Statische Webseite: schwarz-weiße Kontrastbilder für Säuglinge (0–4 Monate), teils langsam animiert, optionaler Farbmodus, live erzeugte Klänge. Die menschliche Beschreibung steht in `README.md`, die ursprüngliche Aufgabe in `Kontrastbilder-task.md` (nicht ändern).
+Statische Webseite: schwarz-weiße Kontrastbilder für Säuglinge (0–4 Monate), teils langsam animiert, optionaler Farbmodus, live erzeugte und mischbare Klänge, übersetzbare Texte. Lizenz CC0 1.0: Beiträge stehen ebenfalls unter CC0. Die menschliche Beschreibung steht in `README.md`, die ursprüngliche Aufgabe in `Kontrastbilder-task.md` (nicht ändern).
 
 ## Aufgaben mit eigener Anleitung
 
@@ -8,15 +8,17 @@ Für diese Aufgaben zuerst die Anleitung vollständig lesen und genau befolgen:
 
 - Neues Motiv (SVG): `anleitungen/motiv-erstellen.md`
 - Neuer Klang (JSON): `anleitungen/klang-erstellen.md`
+- Neue Sprache: Abschnitt „Sprachen“ in `README.md` (de.json kopieren, übersetzen, in `sprachen/liste.js` eintragen)
 
 ## Aufbau
 
 ```
 site/                 die veröffentlichte Seite, ohne Build
-  index.html          Anzeige; druck.html Druckansicht; pruefen.html Prüfseite für Motive
-  js/                 ES-Module: app.js, motive.js, farben.js, klang.js, klang-worklet.js, …
+  index.html          Anzeige; druck.html Druckansicht; pruefen.html Prüfseite; hinweise.html Datenschutz
+  js/                 ES-Module: app.js, motive.js, farben.js, klang.js, klang-worklet.js, sprache.js, …
   motive/             liste.js (Reihenfolge) + eine SVG-Datei pro Motiv
   klaenge/            liste.js (Reihenfolge) + eine JSON-Datei pro Klang
+  sprachen/           liste.js + <code>.json mit allen sichtbaren Texten, auch Motiv- und Klangnamen
   sw.js               Service Worker (offline); neue JS/CSS-Dateien dort in SEITE eintragen
 vorlagen/             Gerüste: motiv.svg, klang.json (bestehen die Prüfung)
 werkzeuge/            pruefen.py (Prüfung per Kommandozeile), server.py (Entwicklungsserver),
@@ -37,7 +39,8 @@ python3 werkzeuge/pruefen.py klang [id|datei.json]
 ## Regeln für Änderungen
 
 - Keine Abhängigkeiten, kein Build, keine CDNs. Zur Laufzeit wird nichts aus dem Internet geladen.
-- Sprache in Code, Bezeichnern, Kommentaren und Texten: Deutsch.
+- Sprache in Code, Bezeichnern, Kommentaren und Dokumentation: Deutsch.
+- Sichtbare Texte der Seite nie fest in HTML oder JS schreiben, sondern in `site/sprachen/de.json` eintragen und über `t("bereich.schluessel")` bzw. `data-i18n` einbinden. Im HTML darf der deutsche Text als Rückfall stehen bleiben.
 - Kommentare als eigene Zeile oder Block über dem Code, nie am Zeilenende.
 - JavaScript mit `// @ts-check` und JSDoc-Typen.
 - Motive nur schwarz/weiß über Rollenklassen (`v`, `h`, `f1`–`f3`, `d1` und Linienvarianten), keine festen Farben, keine Transparenz. Farben im Farbmodus nur über `data-farbe-*` und die Palette in `site/js/farben.js`.
