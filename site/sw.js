@@ -8,11 +8,12 @@
  * aktuellen Stand, offline den zuletzt geladenen. Beim Installieren werden
  * die Seiten, der Code und alle Motive aus der Liste vorab gespeichert.
  *
- * Neue JS- oder CSS-Dateien hier in SEITE eintragen. Motive kommen
- * automatisch aus motive/liste.js.
+ * Neue JS- oder CSS-Dateien hier in SEITE eintragen. Motive und Klänge kommen
+ * automatisch aus motive/liste.js und klaenge/liste.js.
  */
 
 import liste from "./motive/liste.js";
+import klaenge from "./klaenge/liste.js";
 
 const sw = /** @type {ServiceWorkerGlobalScope} */ (/** @type {unknown} */ (self));
 
@@ -31,9 +32,12 @@ const SEITE = [
   "js/einstellungen.js",
   "js/wachhalten.js",
   "js/farben.js",
+  "js/klang.js",
+  "js/rauschen-worklet.js",
   "js/druck.js",
   "js/pruefen.js",
   "motive/liste.js",
+  "klaenge/liste.js",
   "manifest.webmanifest",
   "icons/icon.svg",
   "icons/icon-180.png",
@@ -42,7 +46,7 @@ const SEITE = [
 ];
 
 sw.addEventListener("install", (ereignis) => {
-  const dateien = [...SEITE, ...liste.map((m) => `motive/${m.datei}`)];
+  const dateien = [...SEITE, ...liste.map((m) => `motive/${m.datei}`), ...klaenge.map((k) => `klaenge/${k.datei}`)];
   ereignis.waitUntil(
     caches
       .open(CACHE)

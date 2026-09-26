@@ -78,12 +78,19 @@ body.beendet #buehne {
 }
 
 /* Bedienleiste, blendet sich nach kurzer Zeit selbst aus */
+/*
+ * Zentriert über inset + margin statt left/transform, damit die Leiste auf schmalen
+ * Bildschirmen in eine zweite Zeile umbrechen kann statt überzustehen.
+ */
 .leiste {
   position: fixed;
-  left: 50%;
+  inset-inline: 0;
   bottom: max(2.5vmin, env(safe-area-inset-bottom));
-  transform: translateX(-50%);
+  margin-inline: auto;
+  width: fit-content;
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
   gap: calc(var(--ui) * 0.12);
   padding: calc(var(--ui) * 0.12) calc(var(--ui) * 0.25);
@@ -91,7 +98,7 @@ body.beendet #buehne {
   box-sizing: border-box;
   background: rgb(28 28 28 / 0.9);
   color: #fff;
-  border-radius: 999px;
+  border-radius: calc(var(--ui) * 0.62);
   opacity: 0;
   pointer-events: none;
   transition: opacity 300ms ease;
@@ -161,6 +168,8 @@ body.leiste-sichtbar .leiste {
   fill: #1f5fd6;
 }
 
+#ton[aria-pressed="true"] .symbol-aus,
+#ton[aria-pressed="false"] .symbol-an,
 #animation[aria-pressed="true"] .symbol-play,
 #animation[aria-pressed="false"] .symbol-pause {
   display: none;

@@ -6,6 +6,9 @@
  * @property {number} tempo              Faktor auf alle Animationen
  * @property {boolean} invertiert
  * @property {boolean} farbe             Farbmodus: jedes Motiv mit seinen eigenen Farben
+ * @property {boolean} ton               Klang an
+ * @property {string} klang              id des gewählten Klangs
+ * @property {number} lautstaerke        0 bis 1
  * @property {number} autoWeiter         Sekunden bis zum nächsten Motiv, 0 = aus (60, 180, 300, 600)
  * @property {number} sitzung            Minuten bis zum Ausblenden, 0 = aus
  * @property {boolean} touchNavigation   Tippen links/rechts und Wischen wechselt das Motiv
@@ -32,6 +35,9 @@ function standard() {
     tempo: 1,
     invertiert: false,
     farbe: false,
+    ton: false,
+    klang: "",
+    lautstaerke: 0.5,
     autoWeiter: 0,
     sitzung: 0,
     touchNavigation: false,
@@ -65,6 +71,7 @@ export function laden() {
   } catch {
     // Kein Zugriff auf localStorage oder kaputter Inhalt: Standardwerte behalten.
   }
+  einstellungen.lautstaerke = Math.min(1, Math.max(0, einstellungen.lautstaerke));
   return einstellungen;
 }
 

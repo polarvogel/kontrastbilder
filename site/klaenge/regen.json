@@ -1,0 +1,25 @@
+{
+  "schichten": [
+    {
+      "rauschen": "rosa",
+      "pegel": 0.45,
+      "filter": [
+        { "typ": "hochpass", "frequenz": 500 },
+        { "typ": "tiefpass", "frequenz": 7000 }
+      ],
+      "wellen": [{ "ziel": "pegel", "form": "zufall", "periode": 6, "tiefe": 0.25 }]
+    },
+    {
+      "ereignisse": { "dichte": 20 },
+      "pegel": 0.35,
+      "pegelstreuung": 0.8,
+      "panorama": 0.8,
+      "stimme": {
+        "art": "rauschen",
+        "filter": [{ "typ": "bandpass", "frequenz": [2500, 7000], "guete": 2.5 }],
+        "anschlag": 0.001,
+        "nachklang": 0.06
+      }
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "schichten": [
+    {
+      "rauschen": "braun",
+      "pegel": 0.47,
+      "filter": [{ "typ": "tiefpass", "frequenz": 700 }],
+      "wellen": [
+        { "ziel": "pegel", "periode": 11, "tiefe": 0.6 },
+        { "ziel": "pegel", "periode": 17, "tiefe": 0.15, "versatz": 0.3 },
+        { "ziel": "filter", "periode": 11, "tiefe": 0.6 }
+      ]
+    },
+    {
+      "rauschen": "rosa",
+      "pegel": 0.13,
+      "filter": [{ "typ": "hochpass", "frequenz": 1800 }],
+      "wellen": [{ "ziel": "pegel", "periode": 11, "tiefe": 0.85, "versatz": 0.05 }]
+    }
+  ]
+}

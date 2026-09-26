@@ -4,6 +4,7 @@ import { ladeMotive, erzeugeMotiv, steuereAnimation } from "./motive.js";
 import * as speicher from "./einstellungen.js";
 import * as wachhalten from "./wachhalten.js";
 import { setzeFarben } from "./farben.js";
+import { Klangerzeuger, ladeKlaenge } from "./klang.js";
 
 /** @typedef {import("./motive.js").Motiv} Motiv */
 
@@ -40,6 +41,7 @@ const knopf = {
   invertieren: element("invertieren"),
   /** @type {HTMLButtonElement} */
   farbe: element("farbe"),
+  ton: element("ton"),
   vollbild: element("vollbild"),
   menue: element("menue"),
   fortsetzen: element("fortsetzen"),
@@ -56,6 +58,14 @@ const feld = {
   invertiert: element("e-invertiert"),
   /** @type {HTMLInputElement} */
   farbe: element("e-farbe"),
+  /** @type {HTMLInputElement} */
+  ton: element("e-ton"),
+  /** @type {HTMLSelectElement} */
+  klang: element("e-klang"),
+  /** @type {HTMLInputElement} */
+  lautstaerke: element("e-lautstaerke"),
+  /** @type {HTMLOutputElement} */
+  lautstaerkeWert: element("e-lautstaerke-wert"),
   /** @type {HTMLSelectElement} */
   auto: element("e-auto"),
   /** @type {HTMLSelectElement} */
@@ -69,6 +79,11 @@ const e = speicher.laden();
 
 /** @type {Motiv[]} */
 let motive = [];
+/** @type {import("./klang.js").Klang[]} */
+let klaenge = [];
+const klang = new Klangerzeuger();
+/* Browser erlauben Ton erst nach einer Bedienung (Tippen, Taste). */
+let bedient = false;
 let index = 0;
 let wechselLaeuft = false;
 let sitzungBeendet = false;
@@ -147,6 +162,7 @@ function aktualisiereDarstellung() {
   knopf.invertieren.disabled = e.farbe;
   knopf.invertieren.title = e.farbe ? "Invertieren (im Farbmodus ohne Wirkung)" : "Invertieren (I)";
   knopf.farbe.setAttribute("aria-pressed", String(e.farbe));
+  knopf.ton.setAttribute("aria-pressed", String(e.ton));
   aktualisiereAnimation();
   aktualisiereFormular();
 }
@@ -206,6 +222,43 @@ async function schalteVollbild() {
   } catch {
     // Vollbild abgelehnt, z. B. ohne Nutzeraktion.
   }
+}
+
+/* ---------- Klang ---------- */
+
+const gewaehlterKlang = () => klaenge.find((k) => k.id === e.klang) ?? klaenge[0];
+
+function starteKlang() {
+  const auswahl = gewaehlterKlang();
+  if (!e.ton || !bedient || !auswahl) {
+    return;
+  }
+  klang.setzeLautstaerke(e.lautstaerke);
+  klang.spiele(auswahl.beschreibung).catch((fehler) => console.warn("Klang nicht gestartet:", fehler));
+}
+
+/** @param {boolean} [an] */
+function schalteTon(an = !e.ton) {
+  aendere((e) => {
+    e.ton = an;
+  });
+  if (an) {
+    starteKlang();
+  } else {
+    klang.stoppe();
+  }
+}
+
+/*
+ * Erste Bedienung überhaupt: jetzt darf Ton starten. War der Klang gespeichert
+ * eingeschaltet, beginnt er hier.
+ */
+function ersteBedienung() {
+  if (bedient) {
+    return;
+  }
+  bedient = true;
+  starteKlang();
 }
 
 /* ---------- Automatisches Weiterschalten und Sitzungs-Timer ---------- */
@@ -319,6 +372,10 @@ function taste(ereignis) {
     case "C":
       schalteFarbe();
       break;
+    case "t":
+    case "T":
+      schalteTon();
+      break;
     case "f":
     case "F":
       schalteVollbild();
@@ -420,6 +477,10 @@ function aktualisiereFormular() {
   feld.invertiert.checked = e.invertiert;
   feld.invertiert.disabled = e.farbe;
   feld.farbe.checked = e.farbe;
+  feld.ton.checked = e.ton;
+  feld.klang.value = gewaehlterKlang()?.id ?? "";
+  feld.lautstaerke.value = String(Math.round(e.lautstaerke * 100));
+  feld.lautstaerkeWert.value = `${feld.lautstaerke.value} %`;
   feld.auto.value = String(e.autoWeiter);
   feld.sitzung.value = String(e.sitzung);
   feld.touch.checked = e.touchNavigation;
@@ -449,6 +510,19 @@ function verbindeFormular() {
     }),
   );
   feld.farbe.addEventListener("change", () => schalteFarbe(feld.farbe.checked));
+  feld.ton.addEventListener("change", () => schalteTon(feld.ton.checked));
+  feld.klang.addEventListener("change", () => {
+    aendere((e) => {
+      e.klang = feld.klang.value;
+    });
+    starteKlang();
+  });
+  feld.lautstaerke.addEventListener("input", () => {
+    aendere((e) => {
+      e.lautstaerke = Number(feld.lautstaerke.value) / 100;
+    });
+    klang.setzeLautstaerke(e.lautstaerke);
+  });
   feld.auto.addEventListener("change", () => {
     aendere((e) => {
       e.autoWeiter = Number(feld.auto.value);
@@ -477,6 +551,9 @@ function verbindeBedienung() {
   knopf.animation.addEventListener("click", schalteAnimation);
   knopf.invertieren.addEventListener("click", schalteInvertierung);
   knopf.farbe.addEventListener("click", () => schalteFarbe());
+  knopf.ton.addEventListener("click", () => schalteTon());
+  window.addEventListener("pointerdown", ersteBedienung, { capture: true });
+  window.addEventListener("keydown", ersteBedienung, { capture: true });
   knopf.vollbild.addEventListener("click", schalteVollbild);
   knopf.menue.addEventListener("click", () => {
     aktualisiereFormular();
@@ -518,7 +595,9 @@ async function start() {
   aktualisiereDarstellung();
   versteckeLeiste();
 
-  motive = await ladeMotive();
+  [motive, klaenge] = await Promise.all([ladeMotive(), ladeKlaenge()]);
+  feld.klang.replaceChildren(...klaenge.map((k) => new Option(k.name, k.id)));
+  aktualisiereFormular();
   if (!motive.length) {
     buehne.textContent = "Keine Motive gefunden.";
     return;

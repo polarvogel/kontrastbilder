@@ -1,0 +1,22 @@
+{
+  "schichten": [
+    {
+      "rauschen": "braun",
+      "pegel": 0.15,
+      "filter": [{ "typ": "tiefpass", "frequenz": 220 }]
+    },
+    {
+      "ereignisse": { "abstand": 0.9, "streuung": 0.02 },
+      "muster": [[0, 1, 1], [0.32, 0.7, 1.12]],
+      "pegel": 0.3,
+      "filter": [{ "typ": "tiefpass", "frequenz": 400 }],
+      "stimme": {
+        "art": "ton",
+        "frequenz": 58,
+        "gleiten": [1.6, 0.05],
+        "anschlag": 0.008,
+        "teiltoene": [[1, 1, 0.3], [2, 0.6, 0.22], [3, 0.3, 0.14], [4, 0.15, 0.1]]
+      }
+    }
+  ]
+}

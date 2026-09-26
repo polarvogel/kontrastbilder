@@ -1,0 +1,15 @@
+{
+  "schichten": [
+    {
+      "ereignisse": { "abstand": 1, "streuung": 0.25 },
+      "pegel": 0.6,
+      "panorama": 0.3,
+      "stimme": {
+        "art": "ton",
+        "noten": [67, 69, 72, 74, 76, 79, 81, 84],
+        "anschlag": 0.003,
+        "teiltoene": [[1, 1, 1.6], [3, 0.18, 0.45], [6.2, 0.05, 0.15]]
+      }
+    }
+  ]
+}

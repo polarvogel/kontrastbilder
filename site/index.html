@@ -48,6 +48,10 @@
     <button type="button" id="farbe" title="Farbe an/aus (C)" aria-label="Farbe" aria-pressed="false">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7.5" r="4.5"/><circle cx="7.5" cy="15.5" r="4.5"/><circle cx="16.5" cy="15.5" r="4.5"/></svg>
     </button>
+    <button type="button" id="ton" title="Klang an/aus (T)" aria-label="Klang" aria-pressed="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true" class="symbol-an"><polygon points="3 9 7 9 12 5 12 19 7 15 3 15" class="gefuellt"/><path d="M15.5 9a4 4 0 0 1 0 6"/><path d="M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>
+      <svg viewBox="0 0 24 24" aria-hidden="true" class="symbol-aus"><polygon points="3 9 7 9 12 5 12 19 7 15 3 15"/><line x1="16" y1="9.5" x2="21" y2="14.5"/><line x1="21" y1="9.5" x2="16" y2="14.5"/></svg>
+    </button>
     <button type="button" id="vollbild" title="Vollbild (F)" aria-label="Vollbild">
       <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="4 9 4 4 9 4"/><polyline points="15 4 20 4 20 9"/><polyline points="20 15 20 20 15 20"/><polyline points="9 20 4 20 4 15"/></svg>
     </button>
@@ -84,6 +88,19 @@
       <p class="hinweis">Im Farbmodus hat jedes Bild seine eigenen Farben, Invertieren wirkt dann nicht. Einige Bilder bleiben schwarz-weiß.</p>
 
       <label class="zeile">
+        <input type="checkbox" id="e-ton">
+        <span>Klang</span>
+        <select id="e-klang" aria-label="Klang auswählen"></select>
+      </label>
+
+      <label class="zeile">
+        <span>Lautstärke</span>
+        <input type="range" id="e-lautstaerke" min="0" max="100" step="5">
+        <output id="e-lautstaerke-wert" for="e-lautstaerke"></output>
+      </label>
+      <p class="hinweis">Klänge werden live im Gerät erzeugt, es werden keine Dateien abgespielt. Leise einstellen und das Gerät nicht direkt neben das Kind legen. Der Klang läuft nach dem Sitzungs-Timer weiter.</p>
+
+      <label class="zeile">
         <span>Automatisch weiter</span>
         <select id="e-auto">
           <option value="0">aus</option>
@@ -112,7 +129,7 @@
 
       <p class="hinweis" id="e-wach"></p>
 
-      <p class="hinweis">Tasten: Pfeile wechseln, Leertaste Animation, I invertiert, C Farbe, F Vollbild, + und − Geschwindigkeit.</p>
+      <p class="hinweis">Tasten: Pfeile wechseln, Leertaste Animation, I invertiert, C Farbe, T Klang, F Vollbild, + und − Geschwindigkeit.</p>
 
       <p class="links">
         <a href="druck.html">Druckansicht</a>

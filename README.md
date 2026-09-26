@@ -1,6 +1,6 @@
 # Kontrastbilder
 
-Schwarz-weiße Kontrastbilder für Säuglinge (ca. 0–4 Monate), eines nach dem anderen im Vollbild, teilweise sehr langsam animiert. Optional mit Farbmodus (höchstens 4 Farben pro Bild). Statische Webseite ohne Abhängigkeiten, ohne Build-Schritt, ohne Netzwerkzugriffe zur Laufzeit.
+Schwarz-weiße Kontrastbilder für Säuglinge (ca. 0–4 Monate), eines nach dem anderen im Vollbild, teilweise sehr langsam animiert. Optional mit Farbmodus (höchstens 4 Farben pro Bild) und live erzeugten Klängen (Rauschen, Meer, Regen, Herzschlag, Xylophon). Statische Webseite ohne Abhängigkeiten, ohne Build-Schritt, ohne Netzwerkzugriffe zur Laufzeit.
 
 Stand: 20 Motive, davon 14 animiert. GitHub-Pages-Deployment folgt.
 
@@ -22,6 +22,7 @@ Dann `http://localhost:8000` öffnen. Über `localhost` funktionieren auch Bilds
 | Animation an/aus | Leertaste | Knopf |
 | Invertieren | `I` | Knopf (im Farbmodus ohne Wirkung) |
 | Farbmodus an/aus | `C` | Knopf mit den drei Kreisen |
+| Klang an/aus | `T` | Lautsprecher-Knopf; Auswahl und Lautstärke in den Einstellungen |
 | Vollbild | `F` | Knopf (auf dem iPhone nicht verfügbar, dort „Zum Home-Bildschirm“) |
 | Geschwindigkeit | `+` / `−` | Einstellungen |
 | Leiste einblenden | jede andere Taste | Mausbewegung, Berühren |
@@ -40,8 +41,10 @@ site/
   index.html, druck.html, pruefen.html
   css/            app.css, druck.css, pruefen.css
   js/             app.js (Anzeige), motive.js (Laden/Einbetten), farben.js (Palette), einstellungen.js,
+                  klang.js (Klangerzeuger), rauschen-worklet.js (Rauschgenerator),
                   wachhalten.js (Screen Wake Lock), druck.js, pruefen.js
   motive/         liste.js (Reihenfolge) und eine SVG-Datei pro Motiv
+  klaenge/        liste.js (Reihenfolge) und eine JSON-Datei pro Klang
   sw.js           Service Worker (offline), manifest.webmanifest, icons/
 ```
 
@@ -115,8 +118,59 @@ Umschalten per Knopf, Taste `C` oder in den Einstellungen. Jedes Motiv legt am S
 
 Die Prüfseite gibt einen Hinweis, wenn eine Farbe sich hell/dunkel kaum vom Hintergrund abhebt (Kontrast unter 1,5, z. B. Gelb auf Weiß). Solche Flächen brauchen einen farbigen Hintergrund oder eine dunkle Kante.
 
+## Klänge
+
+Alle Klänge entstehen live im Gerät mit der Web Audio API, es gibt keine Audiodateien. Dauerrauschen wird im AudioWorklet (`js/rauschen-worklet.js`) Probe für Probe neu erzeugt, ohne Schleife. Einzelne Ereignisse (Töne, Rauschstöße) plant `js/klang.js` mit 1,5 s Vorlauf.
+
+- Ton startet erst nach der ersten Bedienung (Tippen, Taste), das verlangen alle Browser. War der Klang beim letzten Mal an, beginnt er bei der ersten Berührung.
+- Ein- und Ausblenden dauern 1–2 s, beim Wechsel wird übergeblendet. Ein Begrenzer im Ausgang verhindert Übersteuern.
+- Der Klang läuft nach dem Sitzungs-Timer weiter (zum Einschlafen). Bei gesperrtem Bildschirm halten Handys ihn meist an.
+- Kleine Handylautsprecher geben den tiefen Herzschlag nur leise wieder.
+
+### Neuer Klang
+
+JSON-Datei in `site/klaenge/` anlegen und eine Zeile in `site/klaenge/liste.js` ergänzen. Beispiel `xylophon.json`, ein ausklingender Ton pro Sekunde (±250 ms):
+
+```json
+{
+  "schichten": [
+    {
+      "ereignisse": { "abstand": 1, "streuung": 0.25 },
+      "pegel": 0.6,
+      "panorama": 0.3,
+      "stimme": {
+        "art": "ton",
+        "noten": [67, 69, 72, 74, 76, 79, 81, 84],
+        "anschlag": 0.003,
+        "teiltoene": [[1, 1, 1.6], [3, 0.18, 0.45], [6.2, 0.05, 0.15]]
+      }
+    }
+  ]
+}
+```
+
+Ein Klang besteht aus Schichten. Jede Schicht ist Dauerrauschen oder eine Folge von Ereignissen.
+
+| Feld | Bedeutung |
+|---|---|
+| `rauschen` | Dauerrauschen: `weiss`, `rosa` (weicher) oder `braun` (dumpf) |
+| `ereignisse` | `{ "abstand": s, "streuung": s }` gleichmäßig mit Zufallsabweichung, oder `{ "dichte": n }` zufällig mit n Ereignissen pro Sekunde |
+| `pegel` | Lautstärke der Schicht, 0 bis 1 |
+| `filter` | Liste fester Filter: `{ "typ": "tiefpass" \| "hochpass" \| "bandpass", "frequenz": Hz, "guete": 0.7 }` |
+| `wellen` | Langsame Schwankungen: `{ "ziel": "pegel" \| "filter", "periode": s, "tiefe": 0–1, "form": "sinus" \| "zufall", "versatz": 0–1 }`. `filter` wirkt auf den ersten Filter der Schicht |
+| `muster` | Mehrere Anschläge pro Ereignis: `[[Versatz s, Pegel, Tonhöhenfaktor], …]`, z. B. Herzschlag „ba-dum“ |
+| `pegelstreuung` | Zufällig leisere Ereignisse, 0 bis 1 |
+| `panorama` | Zufällige Stereoposition je Ereignis, 0 (Mitte) bis 1 (ganz außen) |
+| `stimme` | Was ein Ereignis spielt, siehe unten |
+
+Stimme `"art": "ton"`: Sinus-Teiltöne. `noten` (MIDI-Nummern, 60 = c', zufällig, nie zweimal dieselbe hintereinander) oder `frequenz` (Hz, fest oder Bereich `[min, max]`). `teiltoene`: `[Verhältnis zum Grundton, Pegel, Nachklang in s]`. `anschlag`: Einschwingzeit. `gleiten`: `[Startfaktor, Dauer]`, Tonhöhe rutscht vom Vielfachen auf den Zielton.
+
+Stimme `"art": "rauschen"`: kurzer Rauschstoß mit eigenen `filter` (Frequenz auch als Bereich, dann zufällig je Stoß), `anschlag` und `nachklang` in s.
+
+Die Pegel der vorhandenen Klänge sind so eingestellt, dass alle etwa gleich laut sind (rund −20 dB Effektivwert, Spitzen unter −3 dB). Neue Klänge danach ausrichten.
+
 ## Offline und Deployment
 
-Der Service Worker speichert Seiten, Code und alle Motive aus `liste.js` beim ersten Besuch. Er ist nur über `https` oder `localhost` aktiv. Neue JS- oder CSS-Dateien in `SEITE` in `site/sw.js` eintragen, Motive kommen automatisch dazu.
+Der Service Worker speichert Seiten, Code und alle Motive aus `liste.js` beim ersten Besuch. Er ist nur über `https` oder `localhost` aktiv. Neue JS- oder CSS-Dateien in `SEITE` in `site/sw.js` eintragen, Motive und Klänge kommen automatisch dazu.
 
 GitHub Pages: folgt in Schritt 4.
