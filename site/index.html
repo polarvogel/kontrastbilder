@@ -3,8 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Kontrastbilder</title>
-  <meta name="description" content="Schwarz-weiße Kontrastbilder für Säuglinge, teilweise langsam animiert.">
+  <!-- Deutsche Texte im HTML sind nur der Rückfall ohne JavaScript. Maßgeblich ist sprachen/de.json. -->
+  <title data-i18n="app.titel">Kontrastbilder</title>
+  <meta name="description" content="Schwarz-weiße Kontrastbilder für Säuglinge, teilweise langsam animiert." data-i18n-attr="content=app.beschreibung">
   <meta name="theme-color" content="#000000">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -26,118 +27,124 @@
   <main id="buehne"></main>
 
   <div id="ende" class="ende" hidden>
-    <p>Pause</p>
-    <button type="button" id="fortsetzen">Weiter ansehen</button>
+    <p data-i18n="ende.pause">Pause</p>
+    <button type="button" id="fortsetzen" data-i18n="ende.fortsetzen">Weiter ansehen</button>
   </div>
 
-  <nav id="leiste" class="leiste" aria-label="Bedienung" inert>
-    <button type="button" id="zurueck" title="Zurück (Pfeil links)" aria-label="Zurück">
+  <nav id="leiste" class="leiste" aria-label="Bedienung" data-i18n-attr="aria-label=leiste.bedienung" inert>
+    <button type="button" id="zurueck" title="Zurück (Pfeil links)" aria-label="Zurück" data-i18n-attr="title=leiste.zurueckTitel;aria-label=leiste.zurueck">
       <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 5 8 12 15 19"/></svg>
     </button>
     <span id="titel" class="titel"></span>
-    <button type="button" id="weiter" title="Weiter (Pfeil rechts)" aria-label="Weiter">
+    <button type="button" id="weiter" title="Weiter (Pfeil rechts)" aria-label="Weiter" data-i18n-attr="title=leiste.weiterTitel;aria-label=leiste.weiter">
       <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 5 16 12 9 19"/></svg>
     </button>
-    <button type="button" id="animation" title="Animation an/aus (Leertaste)" aria-label="Animation" aria-pressed="true">
+    <button type="button" id="animation" title="Animation an/aus (Leertaste)" aria-label="Animation" aria-pressed="true" data-i18n-attr="title=leiste.animationTitel;aria-label=leiste.animation">
       <svg viewBox="0 0 24 24" aria-hidden="true" class="symbol-pause"><line x1="9" y1="6" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="18"/></svg>
       <svg viewBox="0 0 24 24" aria-hidden="true" class="symbol-play"><polygon points="8 5 19 12 8 19"/></svg>
     </button>
-    <button type="button" id="invertieren" title="Invertieren (I)" aria-label="Invertieren" aria-pressed="false">
+    <button type="button" id="invertieren" title="Invertieren (I)" aria-label="Invertieren" aria-pressed="false" data-i18n-attr="aria-label=leiste.invertieren">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" class="gefuellt"/></svg>
     </button>
-    <button type="button" id="farbe" title="Farbe an/aus (C)" aria-label="Farbe" aria-pressed="false">
+    <button type="button" id="farbe" title="Farbe an/aus (C)" aria-label="Farbe" aria-pressed="false" data-i18n-attr="title=leiste.farbeTitel;aria-label=leiste.farbe">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7.5" r="4.5"/><circle cx="7.5" cy="15.5" r="4.5"/><circle cx="16.5" cy="15.5" r="4.5"/></svg>
     </button>
-    <button type="button" id="ton" title="Klang an/aus (T)" aria-label="Klang" aria-pressed="false">
+    <button type="button" id="ton" title="Klang an/aus (T)" aria-label="Klang" aria-pressed="false" data-i18n-attr="title=leiste.tonTitel;aria-label=leiste.ton">
       <svg viewBox="0 0 24 24" aria-hidden="true" class="symbol-an"><polygon points="3 9 7 9 12 5 12 19 7 15 3 15" class="gefuellt"/><path d="M15.5 9a4 4 0 0 1 0 6"/><path d="M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>
       <svg viewBox="0 0 24 24" aria-hidden="true" class="symbol-aus"><polygon points="3 9 7 9 12 5 12 19 7 15 3 15"/><line x1="16" y1="9.5" x2="21" y2="14.5"/><line x1="21" y1="9.5" x2="16" y2="14.5"/></svg>
     </button>
-    <button type="button" id="vollbild" title="Vollbild (F)" aria-label="Vollbild">
+    <button type="button" id="vollbild" title="Vollbild (F)" aria-label="Vollbild" data-i18n-attr="title=leiste.vollbildTitel;aria-label=leiste.vollbild">
       <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="4 9 4 4 9 4"/><polyline points="15 4 20 4 20 9"/><polyline points="20 15 20 20 15 20"/><polyline points="9 20 4 20 4 15"/></svg>
     </button>
-    <button type="button" id="menue" title="Einstellungen" aria-label="Einstellungen" aria-haspopup="dialog">
+    <button type="button" id="menue" title="Einstellungen" aria-label="Einstellungen" aria-haspopup="dialog" data-i18n-attr="title=leiste.einstellungenTitel;aria-label=leiste.einstellungen">
       <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="17" x2="20" y2="17"/><circle cx="9" cy="7" r="2.2" class="gefuellt"/><circle cx="15" cy="17" r="2.2" class="gefuellt"/></svg>
     </button>
   </nav>
 
   <dialog id="einstellungen" class="einstellungen" aria-labelledby="einstellungen-titel">
     <form method="dialog">
-      <h2 id="einstellungen-titel">Einstellungen</h2>
+      <h2 id="einstellungen-titel" data-i18n="einstellungen.titel">Einstellungen</h2>
 
       <label class="zeile">
         <input type="checkbox" id="e-animation">
-        <span>Animation</span>
+        <span data-i18n="einstellungen.animation">Animation</span>
       </label>
-      <p class="hinweis" id="e-animation-hinweis" hidden>Das System wünscht weniger Bewegung. Deshalb ist die Animation standardmäßig aus.</p>
+      <p class="hinweis" id="e-animation-hinweis" hidden data-i18n="einstellungen.animationSystem">Das System wünscht weniger Bewegung. Deshalb ist die Animation standardmäßig aus.</p>
 
       <label class="zeile">
-        <span>Geschwindigkeit</span>
+        <span data-i18n="einstellungen.tempo">Geschwindigkeit</span>
         <input type="range" id="e-tempo" min="0" max="5" step="1">
         <output id="e-tempo-wert" for="e-tempo"></output>
       </label>
 
       <label class="zeile">
         <input type="checkbox" id="e-invertiert">
-        <span>Invertiert (weiß auf schwarz)</span>
+        <span data-i18n="einstellungen.invertiert">Invertiert (weiß auf schwarz)</span>
       </label>
 
       <label class="zeile">
         <input type="checkbox" id="e-farbe">
-        <span>Farbe (bis zu 4 Farben pro Bild)</span>
+        <span data-i18n="einstellungen.farbe">Farbe (bis zu 4 Farben pro Bild)</span>
       </label>
-      <p class="hinweis">Im Farbmodus hat jedes Bild seine eigenen Farben, Invertieren wirkt dann nicht. Einige Bilder bleiben schwarz-weiß.</p>
+      <p class="hinweis" data-i18n="einstellungen.farbeHinweis">Im Farbmodus hat jedes Bild seine eigenen Farben, Invertieren wirkt dann nicht. Einige Bilder bleiben schwarz-weiß.</p>
 
       <label class="zeile">
         <input type="checkbox" id="e-ton">
-        <span>Klang</span>
-        <select id="e-klang" aria-label="Klang auswählen"></select>
+        <span data-i18n="einstellungen.klang">Klang</span>
       </label>
+      <div id="e-klaenge" class="klangliste"></div>
+      <p class="hinweis" data-i18n="einstellungen.klaengeHinweis">Mehrere Klänge lassen sich gleichzeitig anhaken und mischen. Der Regler daneben bestimmt den Anteil.</p>
 
       <label class="zeile">
-        <span>Lautstärke</span>
+        <span data-i18n="einstellungen.lautstaerke">Lautstärke</span>
         <input type="range" id="e-lautstaerke" min="0" max="100" step="5">
         <output id="e-lautstaerke-wert" for="e-lautstaerke"></output>
       </label>
-      <p class="hinweis">Klänge werden live im Gerät erzeugt, es werden keine Dateien abgespielt. Leise einstellen und das Gerät nicht direkt neben das Kind legen. Der Klang läuft nach dem Sitzungs-Timer weiter.</p>
+      <p class="hinweis" data-i18n="einstellungen.klangHinweis">Klänge werden live im Gerät erzeugt, es werden keine Dateien abgespielt. Leise einstellen und das Gerät nicht direkt neben das Kind legen. Der Klang läuft nach dem Sitzungs-Timer weiter.</p>
 
       <label class="zeile">
-        <span>Automatisch weiter</span>
+        <span data-i18n="einstellungen.autoWeiter">Automatisch weiter</span>
         <select id="e-auto">
-          <option value="0">aus</option>
-          <option value="60">jede Minute</option>
-          <option value="180">alle 3 Minuten</option>
-          <option value="300">alle 5 Minuten</option>
-          <option value="600">alle 10 Minuten</option>
+          <option value="0" data-i18n="einstellungen.autoAus">aus</option>
+          <option value="60" data-i18n="einstellungen.auto60">jede Minute</option>
+          <option value="180" data-i18n="einstellungen.auto180">alle 3 Minuten</option>
+          <option value="300" data-i18n="einstellungen.auto300">alle 5 Minuten</option>
+          <option value="600" data-i18n="einstellungen.auto600">alle 10 Minuten</option>
         </select>
       </label>
 
       <label class="zeile">
-        <span>Sitzung beenden nach</span>
+        <span data-i18n="einstellungen.sitzung">Sitzung beenden nach</span>
         <select id="e-sitzung">
-          <option value="0">aus</option>
-          <option value="3">3 Minuten</option>
-          <option value="5">5 Minuten</option>
-          <option value="10">10 Minuten</option>
+          <option value="0" data-i18n="einstellungen.sitzungAus">aus</option>
+          <option value="3" data-i18n="einstellungen.sitzung3">3 Minuten</option>
+          <option value="5" data-i18n="einstellungen.sitzung5">5 Minuten</option>
+          <option value="10" data-i18n="einstellungen.sitzung10">10 Minuten</option>
         </select>
       </label>
 
       <label class="zeile">
         <input type="checkbox" id="e-touch">
-        <span>Tippen und Wischen wechselt das Bild</span>
+        <span data-i18n="einstellungen.touch">Tippen und Wischen wechselt das Bild</span>
       </label>
-      <p class="hinweis">Aus: Berührung blendet nur diese Leiste ein. An: linkes Drittel zurück, rechtes Drittel weiter, Mitte Leiste, Wischen wechselt.</p>
+      <p class="hinweis" data-i18n="einstellungen.touchHinweis">Aus: Berührung blendet nur diese Leiste ein. An: linkes Drittel zurück, rechtes Drittel weiter, Mitte Leiste, Wischen wechselt.</p>
+
+      <label class="zeile" id="e-sprache-zeile" hidden>
+        <span data-i18n="einstellungen.sprache">Sprache</span>
+        <select id="e-sprache"></select>
+      </label>
 
       <p class="hinweis" id="e-wach"></p>
 
-      <p class="hinweis">Tasten: Pfeile wechseln, Leertaste Animation, I invertiert, C Farbe, T Klang, F Vollbild, + und − Geschwindigkeit.</p>
+      <p class="hinweis" data-i18n="einstellungen.tasten">Tasten: Pfeile wechseln, Leertaste Animation, I invertiert, C Farbe, T Klang, F Vollbild, + und − Geschwindigkeit.</p>
 
       <p class="links">
-        <a href="druck.html">Druckansicht</a>
-        <a href="pruefen.html">Prüfseite</a>
-        <a href="rechtliches.html">Impressum und Datenschutz</a>
+        <a href="druck.html" data-i18n="einstellungen.druck">Druckansicht</a>
+        <a href="pruefen.html" data-i18n="einstellungen.pruefen">Prüfseite</a>
+        <a href="hinweise.html" data-i18n="einstellungen.hinweise">Hinweise und Datenschutz</a>
       </p>
 
-      <button type="submit" class="schliessen">Schließen</button>
+      <button type="submit" class="schliessen" data-i18n="einstellungen.schliessen">Schließen</button>
     </form>
   </dialog>
 
@@ -145,7 +152,7 @@
     <h1>Kontrastbilder</h1>
     <p>Diese Seite muss über einen lokalen Server geöffnet werden, nicht direkt als Datei.</p>
     <p>Im Projektordner ausführen:</p>
-    <pre>python3 -m http.server 8000 --directory site</pre>
+    <pre>python3 werkzeuge/server.py</pre>
     <p>Dann im Browser <code>http://localhost:8000</code> öffnen.</p>
   </div>
 

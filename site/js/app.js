@@ -5,6 +5,7 @@ import * as speicher from "./einstellungen.js";
 import * as wachhalten from "./wachhalten.js";
 import { setzeFarben } from "./farben.js";
 import { Klangerzeuger, ladeKlaenge } from "./klang.js";
+import { t, zahl, ladeSprache, waehleSprache, uebersetzeSeite, verfuegbar } from "./sprache.js";
 
 /** @typedef {import("./motive.js").Motiv} Motiv */
 
@@ -60,8 +61,10 @@ const feld = {
   farbe: element("e-farbe"),
   /** @type {HTMLInputElement} */
   ton: element("e-ton"),
+  klaenge: element("e-klaenge"),
+  spracheZeile: element("e-sprache-zeile"),
   /** @type {HTMLSelectElement} */
-  klang: element("e-klang"),
+  sprache: element("e-sprache"),
   /** @type {HTMLInputElement} */
   lautstaerke: element("e-lautstaerke"),
   /** @type {HTMLOutputElement} */
@@ -108,7 +111,7 @@ const warte = (/** @type {number} */ ms) => new Promise((fertig) => setTimeout(f
 function setzeMotiv(motiv) {
   setzeFarben(document.documentElement, e.farbe ? motiv.farben : null);
   buehne.replaceChildren(erzeugeMotiv(motiv));
-  titel.textContent = `${motiv.name} · ${index + 1}/${motive.length}`;
+  titel.textContent = t("app.motivTitel", { name: motiv.name, nummer: index + 1, anzahl: motive.length });
   aktualisiereAnimation();
 }
 
@@ -160,7 +163,7 @@ function aktualisiereDarstellung() {
   document.documentElement.classList.toggle("invertiert", e.invertiert);
   knopf.invertieren.setAttribute("aria-pressed", String(e.invertiert));
   knopf.invertieren.disabled = e.farbe;
-  knopf.invertieren.title = e.farbe ? "Invertieren (im Farbmodus ohne Wirkung)" : "Invertieren (I)";
+  knopf.invertieren.title = t(e.farbe ? "leiste.invertierenFarbeTitel" : "leiste.invertierenTitel");
   knopf.farbe.setAttribute("aria-pressed", String(e.farbe));
   knopf.ton.setAttribute("aria-pressed", String(e.ton));
   aktualisiereAnimation();
@@ -226,15 +229,77 @@ async function schalteVollbild() {
 
 /* ---------- Klang ---------- */
 
-const gewaehlterKlang = () => klaenge.find((k) => k.id === e.klang) ?? klaenge[0];
-
+/*
+ * Spielt alle angehakten Klänge gemischt. Ist beim Einschalten nichts angehakt,
+ * wird der erste Klang der Liste gewählt.
+ */
 function starteKlang() {
-  const auswahl = gewaehlterKlang();
-  if (!e.ton || !bedient || !auswahl) {
+  if (!e.ton || !bedient || !klaenge.length) {
     return;
   }
+  if (!klaenge.some((k) => e.klaenge.includes(k.id))) {
+    e.klaenge = [klaenge[0].id];
+    speicher.speichern(e);
+    aktualisiereFormular();
+  }
+  const auswahl = klaenge
+    .filter((k) => e.klaenge.includes(k.id))
+    .map((k) => ({ id: k.id, beschreibung: k.beschreibung, anteil: e.klangAnteile[k.id] ?? 1, titel: k.name }));
   klang.setzeLautstaerke(e.lautstaerke);
-  klang.spiele(auswahl.beschreibung, auswahl.name).catch((fehler) => console.warn("Klang nicht gestartet:", fehler));
+  klang.spiele(auswahl).catch((fehler) => console.warn("Klang nicht gestartet:", fehler));
+}
+
+/**
+ * Klang an- oder abhaken. Anhaken schaltet den Klang insgesamt ein,
+ * das Abhaken des letzten schaltet ihn aus.
+ *
+ * @param {string} id
+ * @param {boolean} an
+ */
+function waehleKlang(id, an) {
+  aendere((e) => {
+    e.klaenge = an ? [...new Set([...e.klaenge, id])] : e.klaenge.filter((k) => k !== id);
+    e.ton = e.klaenge.length > 0 && (an || e.ton);
+  });
+  if (e.ton) {
+    starteKlang();
+  } else {
+    klang.stoppe();
+  }
+}
+
+/** Zeilen im Mischpult: Haken und Anteil je Klang */
+function baueKlangliste() {
+  feld.klaenge.replaceChildren(
+    ...klaenge.map((k) => {
+      const zeile = document.createElement("div");
+      zeile.className = "klangzeile";
+      const beschriftung = document.createElement("label");
+      const haken = document.createElement("input");
+      haken.type = "checkbox";
+      haken.dataset.klang = k.id;
+      haken.addEventListener("change", () => waehleKlang(k.id, haken.checked));
+      const name = document.createElement("span");
+      name.textContent = k.name;
+      beschriftung.append(haken, name);
+      const regler = document.createElement("input");
+      regler.type = "range";
+      regler.min = "0";
+      regler.max = "100";
+      regler.step = "5";
+      regler.dataset.anteil = k.id;
+      regler.setAttribute("aria-label", t("einstellungen.klangAnteil", { name: k.name }));
+      regler.addEventListener("input", () => {
+        const wert = Number(regler.value) / 100;
+        aendere((e) => {
+          e.klangAnteile = { ...e.klangAnteile, [k.id]: wert };
+        });
+        klang.setzeAnteil(k.id, wert);
+      });
+      zeile.append(beschriftung, regler);
+      return zeile;
+    }),
+  );
 }
 
 /** @param {boolean} [an] */
@@ -494,24 +559,30 @@ function aktualisiereFormular() {
   feld.animationHinweis.hidden = !(e.animation === null && !speicher.animationAn(e));
   const stufe = speicher.TEMPO_STUFEN.indexOf(e.tempo);
   feld.tempo.value = String(stufe < 0 ? 2 : stufe);
-  feld.tempoWert.value = `${String(e.tempo).replace(".", ",")}×`;
+  feld.tempoWert.value = t("einstellungen.tempoWert", { wert: zahl(e.tempo) });
   feld.invertiert.checked = e.invertiert;
   feld.invertiert.disabled = e.farbe;
   feld.farbe.checked = e.farbe;
   feld.ton.checked = e.ton;
-  feld.klang.value = gewaehlterKlang()?.id ?? "";
+  for (const haken of feld.klaenge.querySelectorAll("input[data-klang]")) {
+    /** @type {HTMLInputElement} */ (haken).checked = e.klaenge.includes(/** @type {HTMLInputElement} */ (haken).dataset.klang ?? "");
+  }
+  for (const regler of feld.klaenge.querySelectorAll("input[data-anteil]")) {
+    const id = /** @type {HTMLInputElement} */ (regler).dataset.anteil ?? "";
+    /** @type {HTMLInputElement} */ (regler).value = String(Math.round((e.klangAnteile[id] ?? 1) * 100));
+  }
   feld.lautstaerke.value = String(Math.round(e.lautstaerke * 100));
-  feld.lautstaerkeWert.value = `${feld.lautstaerke.value} %`;
+  feld.lautstaerkeWert.value = t("einstellungen.prozent", { wert: feld.lautstaerke.value });
   feld.auto.value = String(e.autoWeiter);
   feld.sitzung.value = String(e.sitzung);
   feld.touch.checked = e.touchNavigation;
   const wachText = {
-    aktiv: "aktiv.",
-    abgelehnt: "vom Browser abgelehnt. Der Bildschirm kann sich nach der Systemzeit abschalten.",
-    aus: "aus.",
-    "nicht unterstützt": "von diesem Browser nicht unterstützt.",
+    aktiv: "einstellungen.wachAktiv",
+    abgelehnt: "einstellungen.wachAbgelehnt",
+    aus: "einstellungen.wachAus",
+    "nicht unterstützt": "einstellungen.wachNichtUnterstuetzt",
   };
-  feld.wach.textContent = `Bildschirm wachhalten: ${wachText[wachhalten.status()]}`;
+  feld.wach.textContent = t(wachText[wachhalten.status()]);
 }
 
 function verbindeFormular() {
@@ -532,11 +603,11 @@ function verbindeFormular() {
   );
   feld.farbe.addEventListener("change", () => schalteFarbe(feld.farbe.checked));
   feld.ton.addEventListener("change", () => schalteTon(feld.ton.checked));
-  feld.klang.addEventListener("change", () => {
+  feld.sprache.addEventListener("change", () => {
     aendere((e) => {
-      e.klang = feld.klang.value;
+      e.sprache = feld.sprache.value;
     });
-    starteKlang();
+    location.reload();
   });
   feld.lautstaerke.addEventListener("input", () => {
     aendere((e) => {
@@ -613,15 +684,21 @@ function registriereServiceWorker() {
 }
 
 async function start() {
+  await ladeSprache(waehleSprache(e.sprache));
+  uebersetzeSeite();
+  klang.kuenstler = t("app.titel");
+  feld.sprache.replaceChildren(...verfuegbar.map((s) => new Option(s.name, s.code)));
+  feld.sprache.value = waehleSprache(e.sprache);
+  feld.spracheZeile.hidden = verfuegbar.length < 2;
   verbindeBedienung();
   aktualisiereDarstellung();
   versteckeLeiste();
 
   [motive, klaenge] = await Promise.all([ladeMotive(), ladeKlaenge()]);
-  feld.klang.replaceChildren(...klaenge.map((k) => new Option(k.name, k.id)));
+  baueKlangliste();
   aktualisiereFormular();
   if (!motive.length) {
-    buehne.textContent = "Keine Motive gefunden.";
+    buehne.textContent = t("app.keineMotive");
     return;
   }
   index = Math.max(0, motive.findIndex((m) => m.id === e.letztesMotiv));

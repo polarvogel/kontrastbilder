@@ -243,6 +243,9 @@ class KlangSchicht {
   }
 }
 
+/** Lautstärkeregler 0–1 auf Verstärkung: quadratisch, entspricht grob dem Hören */
+const verstaerkung = (/** @type {number} */ lautstaerke) => lautstaerke * lautstaerke;
+
 /** Ein kompletter Klang aus mehreren Schichten mit gemeinsamem Ein- und Ausblenden. */
 export class KlangGraph {
   /**
@@ -254,8 +257,18 @@ export class KlangGraph {
     this.ctx = ctx;
     this.ausgang = ctx.createGain();
     this.ausgang.gain.value = 0;
-    this.ausgang.connect(ziel);
+    this.mischer = ctx.createGain();
+    this.ausgang.connect(this.mischer).connect(ziel);
     this.schichten = beschreibung.schichten.map((s) => new KlangSchicht(ctx, s, this.ausgang));
+  }
+
+  /**
+   * Anteil dieses Klangs im Mischpult (0–1, quadratisch wie der Hauptregler).
+   *
+   * @param {number} wert
+   */
+  setzeAnteil(wert) {
+    this.mischer.gain.setTargetAtTime(verstaerkung(wert), this.ctx.currentTime, 0.1);
   }
 
   /**
@@ -284,13 +297,10 @@ export class KlangGraph {
     this.schichten.forEach((s) => s.stoppe(zeit + ausblenden));
     setTimeout(() => {
       this.schichten.forEach((s) => s.trenne());
-      this.ausgang.disconnect();
+      this.mischer.disconnect();
     }, (ausblenden + VORLAUF + 0.5) * 1000);
   }
 }
-
-/** Lautstärkeregler 0–1 auf Verstärkung: quadratisch, entspricht grob dem Hören */
-const verstaerkung = (/** @type {number} */ lautstaerke) => lautstaerke * lautstaerke;
 
 /**
  * Eine halbe Sekunde digitale Stille als WAV (8 kHz, 8 Bit), zur Laufzeit erzeugt.
@@ -335,14 +345,17 @@ export class Klangerzeuger {
     this.ctx = null;
     /** @type {GainNode | null} */
     this.haupt = null;
-    /** @type {KlangGraph | null} */
-    this.graph = null;
+    /** @type {Map<string, KlangGraph>} */
+    this.graphen = new Map();
+    this.anzahl = 0;
     /** @type {HTMLAudioElement | null} */
     this.stille = null;
     /** @type {ReturnType<typeof setInterval> | undefined} */
     this.takt = undefined;
     this.lautstaerke = 0.5;
     this.aktiv = false;
+    /* Anzeige auf dem Sperrbildschirm, von der App in der gewählten Sprache gesetzt */
+    this.kuenstler = "Kontrastbilder";
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "visible") {
         this.fortsetzen();
@@ -399,27 +412,53 @@ export class Klangerzeuger {
   }
 
   /**
-   * Startet einen Klang oder wechselt überblendend zu ihm.
+   * Spielt eine Auswahl von Klängen gleichzeitig. Neue Klänge werden eingeblendet,
+   * abgewählte ausgeblendet, laufende behalten ihren Zustand und ändern nur ihren Anteil.
+   * Mehrere Klänge addieren sich; damit es insgesamt nicht lauter wird, sinkt der
+   * Hauptpegel mit 1/√Anzahl.
    *
-   * @param {Beschreibung} beschreibung
-   * @param {string} [titel] Anzeige auf dem Sperrbildschirm
+   * @param {{ id: string, beschreibung: Beschreibung, anteil: number, titel: string }[]} auswahl
    */
-  async spiele(beschreibung, titel = "Klang") {
+  async spiele(auswahl) {
     this.aktiv = true;
-    this.zeigeTitel(titel, "playing");
+    this.zeigeTitel(auswahl.map((k) => k.titel).join(" + ") || null, "playing");
     const { ctx, haupt } = await this.bereit();
     if (!this.aktiv) {
       return;
     }
     const jetzt = ctx.currentTime;
-    this.graph?.beende(jetzt, AUSBLENDEN);
-    this.graph = new KlangGraph(ctx, beschreibung, haupt);
-    this.graph.starte(jetzt + 0.05, EINBLENDEN);
-    haupt.gain.setTargetAtTime(verstaerkung(this.lautstaerke), jetzt, 0.2);
+    const gewuenscht = new Set(auswahl.map((k) => k.id));
+    for (const [id, graph] of this.graphen) {
+      if (!gewuenscht.has(id)) {
+        graph.beende(jetzt, AUSBLENDEN);
+        this.graphen.delete(id);
+      }
+    }
+    for (const klang of auswahl) {
+      let graph = this.graphen.get(klang.id);
+      if (!graph) {
+        graph = new KlangGraph(ctx, klang.beschreibung, haupt);
+        graph.starte(jetzt + 0.05, EINBLENDEN);
+        this.graphen.set(klang.id, graph);
+      }
+      graph.setzeAnteil(klang.anteil);
+    }
+    this.anzahl = auswahl.length;
+    this.setzeLautstaerke(this.lautstaerke);
     clearInterval(this.takt);
-    const plane = () => this.graph?.plane(ctx.currentTime + VORLAUF);
+    const plane = () => this.graphen.forEach((graph) => graph.plane(ctx.currentTime + VORLAUF));
     plane();
     this.takt = setInterval(plane, TAKT_MS);
+  }
+
+  /**
+   * Anteil eines laufenden Klangs ändern, ohne ihn neu zu starten.
+   *
+   * @param {string} id
+   * @param {number} anteil
+   */
+  setzeAnteil(id, anteil) {
+    this.graphen.get(id)?.setzeAnteil(anteil);
   }
 
   /** Blendet aus und hält den AudioContext danach an (spart Strom). */
@@ -436,8 +475,8 @@ export class Klangerzeuger {
         return;
       }
       clearInterval(this.takt);
-      this.graph?.beende(ctx.currentTime, 0.05);
-      this.graph = null;
+      this.graphen.forEach((graph) => graph.beende(ctx.currentTime, 0.05));
+      this.graphen.clear();
       this.stille?.pause();
       ctx.suspend();
     }, AUSBLENDEN * 1000 + 300);
@@ -447,7 +486,8 @@ export class Klangerzeuger {
   setzeLautstaerke(wert) {
     this.lautstaerke = wert;
     if (this.aktiv && this.ctx && this.haupt) {
-      this.haupt.gain.setTargetAtTime(verstaerkung(wert), this.ctx.currentTime, 0.1);
+      const ausgleich = 1 / Math.sqrt(Math.max(1, this.anzahl));
+      this.haupt.gain.setTargetAtTime(verstaerkung(wert) * ausgleich, this.ctx.currentTime, 0.1);
     }
   }
 
@@ -456,15 +496,16 @@ export class Klangerzeuger {
    *
    * @param {string | null} titel
    * @param {MediaSessionPlaybackState} zustand
+   * @param {string} [kuenstler]
    */
-  zeigeTitel(titel, zustand) {
+  zeigeTitel(titel, zustand, kuenstler = this.kuenstler) {
     if (!("mediaSession" in navigator)) {
       return;
     }
     if (titel) {
       navigator.mediaSession.metadata = new MediaMetadata({
         title: titel,
-        artist: "Kontrastbilder",
+        artist: kuenstler,
         artwork: [{ src: new URL("../icons/icon-512.png", import.meta.url).href, sizes: "512x512", type: "image/png" }],
       });
     }
