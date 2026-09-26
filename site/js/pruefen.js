@@ -5,7 +5,7 @@ import { ladeMotive, erzeugeMotiv, STIL_STATISCH } from "./motive.js";
 /** @typedef {import("./motive.js").Motiv} Motiv */
 /** @typedef {{ art: "fehler" | "hinweis" | "ok", text: string }} Befund */
 
-const ROLLEN = ["v", "h", "f1", "f2", "f3", "vl", "hl"];
+const ROLLEN = ["v", "h", "f1", "f2", "f3", "vl", "hl", "f1l", "f2l", "f3l"];
 const ROLLEN_SELEKTOR = ROLLEN.map((r) => `.${r}`).join(",");
 const FORMEN = "rect,circle,ellipse,path,polygon,polyline,line";
 
@@ -145,7 +145,8 @@ function messeAusdehnung(host) {
       continue;
     }
     const r = el.getBoundingClientRect();
-    const rand = el.closest(".vl,.hl") ? (Number(el.getAttribute("stroke-width")) || 0) * 0.5 * skala : 0;
+    const strich = el.closest(".vl,.hl,.f1l,.f2l,.f3l") ? parseFloat(getComputedStyle(el).strokeWidth) || 0 : 0;
+    const rand = strich * 0.5 * skala;
     links = Math.min(links, r.left - rand);
     oben = Math.min(oben, r.top - rand);
     rechts = Math.max(rechts, r.right + rand);
@@ -226,8 +227,6 @@ async function pruefeMotiv(motiv) {
   kacheln.append(
     kachel("Normal, animiert", erzeugeMotiv(motiv)),
     kachel("Invertiert, animiert", erzeugeMotiv(motiv), "invertiert"),
-    kachel("Unscharf (Blur-Test)", erzeugeMotiv(motiv, STIL_STATISCH), "unscharf"),
-    kachel("Unscharf, invertiert", erzeugeMotiv(motiv, STIL_STATISCH), "unscharf invertiert"),
     kachel("Ruhepose (Druck)", ruhe),
     kachel("Endpose der Animation", ende),
   );
@@ -254,8 +253,15 @@ async function pruefeMotiv(motiv) {
   return befunde;
 }
 
+/*
+ * Optional nur ein Motiv prüfen und größer zeigen: pruefen.html?motiv=elefant
+ */
 async function start() {
-  const motive = await ladeMotive();
+  const auswahl = new URLSearchParams(location.search).get("motiv");
+  const motive = (await ladeMotive()).filter((m) => !auswahl || m.id === auswahl);
+  if (auswahl) {
+    document.documentElement.style.setProperty("--kachel", "min(360px, 44vw)");
+  }
   let fehler = 0;
   let hinweise = 0;
   for (const motiv of motive) {

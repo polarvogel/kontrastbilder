@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <style>
+    /* Farbrollen (siehe README). Die Fallback-Werte gelten nur beim direkten Öffnen der Datei. */
+    .v { fill: var(--v, #000); }
+    .h { fill: var(--h, #fff); }
+    .f1 { fill: var(--f1, var(--v, #000)); }
+    .f2 { fill: var(--f2, var(--v, #000)); }
+    .f3 { fill: var(--f3, var(--v, #000)); }
+    .vl, .hl, .f1l, .f2l, .f3l { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .vl { stroke: var(--v, #000); }
+    .hl { stroke: var(--h, #fff); }
+    .f1l { stroke: var(--f1, var(--v, #000)); }
+    .f2l { stroke: var(--f2, var(--v, #000)); }
+    .f3l { stroke: var(--f3, var(--v, #000)); }
+
+    /* Langsames Blinzeln etwa alle 10 s */
+    .auge { animation: blinzeln 10s ease-in-out infinite; }
+    .auge-links { transform-origin: 158px 170px; }
+    .auge-rechts { transform-origin: 242px 170px; }
+    @keyframes blinzeln {
+      0%, 86%, 100% { transform: scaleY(1); }
+      90% { transform: scaleY(0.08); }
+      94% { transform: scaleY(1); }
+    }
+  </style>
+
+  <rect class="h" width="400" height="400"/>
+
+  <!-- Ast -->
+  <path class="f3l" stroke-width="16" d="M96 338 L304 338"/>
+
+  <!-- Körper mit Federohren -->
+  <path class="v" d="M122 124 L118 80 L162 106 Z"/>
+  <path class="vl" stroke-width="14" d="M122 124 L118 80 L162 106 Z"/>
+  <path class="v" d="M278 124 L282 80 L238 106 Z"/>
+  <path class="vl" stroke-width="14" d="M278 124 L282 80 L238 106 Z"/>
+  <ellipse class="v" cx="200" cy="214" rx="100" ry="116"/>
+
+  <!-- Flügelkanten und Bauch mit Federmuster -->
+  <path class="hl" stroke-width="8" d="M118 206 Q126 268 164 300"/>
+  <path class="hl" stroke-width="8" d="M282 206 Q274 268 236 300"/>
+  <ellipse class="h" cx="200" cy="274" rx="56" ry="46"/>
+  <g class="vl" stroke-width="7">
+    <path d="M168 256 Q176 266 184 256"/>
+    <path d="M192 256 Q200 266 208 256"/>
+    <path d="M216 256 Q224 266 232 256"/>
+    <path d="M180 282 Q188 292 196 282"/>
+    <path d="M204 282 Q212 292 220 282"/>
+  </g>
+
+  <!-- Brauenbogen über den Augen -->
+  <path class="hl" stroke-width="8" d="M112 132 Q160 112 200 146 Q240 112 288 132"/>
+
+  <!-- Große Augen -->
+  <g class="auge auge-links">
+    <circle class="h" cx="158" cy="170" r="40"/>
+    <circle class="v" cx="160" cy="174" r="22"/>
+    <circle class="h" cx="152" cy="165" r="7"/>
+  </g>
+  <g class="auge auge-rechts">
+    <circle class="h" cx="242" cy="170" r="40"/>
+    <circle class="v" cx="240" cy="174" r="22"/>
+    <circle class="h" cx="232" cy="165" r="7"/>
+  </g>
+
+  <!-- Schnabel mit weißer Kante -->
+  <path class="hl" stroke-width="18" d="M188 204 L212 204 L200 226 Z"/>
+  <path class="f1" d="M188 204 L212 204 L200 226 Z"/>
+  <path class="f1l" stroke-width="8" d="M188 204 L212 204 L200 226 Z"/>
+</svg>

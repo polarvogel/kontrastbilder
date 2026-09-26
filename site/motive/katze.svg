@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <style>
+    /* Farbrollen (siehe README). Die Fallback-Werte gelten nur beim direkten Öffnen der Datei. */
+    .v { fill: var(--v, #000); }
+    .h { fill: var(--h, #fff); }
+    .f1 { fill: var(--f1, var(--v, #000)); }
+    .f2 { fill: var(--f2, var(--v, #000)); }
+    .f3 { fill: var(--f3, var(--v, #000)); }
+    .vl, .hl, .f1l, .f2l, .f3l { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .vl { stroke: var(--v, #000); }
+    .hl { stroke: var(--h, #fff); }
+    .f1l { stroke: var(--f1, var(--v, #000)); }
+    .f2l { stroke: var(--f2, var(--v, #000)); }
+    .f3l { stroke: var(--f3, var(--v, #000)); }
+
+    /* Schwanz schwingt in 4 s, der Kopf neigt sich in 7 s leicht hin und her */
+    .schwanz { transform-origin: 262px 318px; animation: schwingen 4s ease-in-out infinite alternate; }
+    .kopf { transform-origin: 200px 208px; animation: neigen 7s ease-in-out infinite alternate; }
+    @keyframes schwingen {
+      from { transform: rotate(-10deg); }
+      to { transform: rotate(14deg); }
+    }
+    @keyframes neigen {
+      from { transform: rotate(-4deg); }
+      to { transform: rotate(4deg); }
+    }
+  </style>
+
+  <rect class="h" width="400" height="400"/>
+
+  <!-- Schwanz -->
+  <g class="schwanz">
+    <path class="vl" stroke-width="20" d="M262 318 C318 330 334 262 302 236"/>
+  </g>
+
+  <!-- Körper mit Pfoten -->
+  <ellipse class="v" cx="200" cy="274" rx="74" ry="64"/>
+  <path class="hl" stroke-width="6" d="M200 306 L200 338"/>
+
+  <g class="kopf">
+    <!-- Weiße Kante trennt Kopf und Körper -->
+    <circle class="hl" stroke-width="9" cx="200" cy="148" r="64"/>
+    <path class="v" d="M142 116 L148 58 L190 96 Z"/>
+    <path class="vl" stroke-width="12" d="M142 116 L148 58 L190 96 Z"/>
+    <path class="v" d="M258 116 L252 58 L210 96 Z"/>
+    <path class="vl" stroke-width="12" d="M258 116 L252 58 L210 96 Z"/>
+    <circle class="v" cx="200" cy="148" r="64"/>
+    <path class="h" d="M154 100 L157 76 L176 94 Z"/>
+    <path class="h" d="M246 100 L243 76 L224 94 Z"/>
+
+    <!-- Augen, Nase, Mund, Schnurrhaare -->
+    <ellipse class="h" cx="174" cy="142" rx="16" ry="20"/>
+    <ellipse class="h" cx="226" cy="142" rx="16" ry="20"/>
+    <ellipse class="v" cx="175" cy="144" rx="8" ry="14"/>
+    <ellipse class="v" cx="225" cy="144" rx="8" ry="14"/>
+    <circle class="h" cx="171" cy="136" r="4"/>
+    <circle class="h" cx="221" cy="136" r="4"/>
+    <path class="h" d="M192 168 L208 168 L200 177 Z"/>
+    <path class="hl" stroke-width="5" d="M192 168 L208 168 L200 177 Z"/>
+    <path class="hl" stroke-width="5" d="M186 186 Q193 194 200 186 Q207 194 214 186"/>
+    <g class="hl" stroke-width="5">
+      <path d="M168 176 L142 172"/>
+      <path d="M168 184 L144 190"/>
+      <path d="M232 176 L258 172"/>
+      <path d="M232 184 L256 190"/>
+    </g>
+  </g>
+</svg>

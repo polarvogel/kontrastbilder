@@ -55,11 +55,6 @@ header {
   --h: #000;
 }
 
-/* Blur-Test: etwa 4 % der Kantenlänge, grob die Sehschärfe eines Neugeborenen auf Armlänge */
-.kachel.unscharf .motiv {
-  filter: blur(calc(var(--kachel) * 0.04));
-}
-
 .ergebnisse {
   margin: 12px 0 0;
   padding-left: 1.2em;

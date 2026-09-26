@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <style>
+    /* Farbrollen (siehe README). Die Fallback-Werte gelten nur beim direkten Öffnen der Datei. */
+    .v { fill: var(--v, #000); }
+    .h { fill: var(--h, #fff); }
+    .f1 { fill: var(--f1, var(--v, #000)); }
+    .f2 { fill: var(--f2, var(--v, #000)); }
+    .f3 { fill: var(--f3, var(--v, #000)); }
+    .vl, .hl, .f1l, .f2l, .f3l { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .vl { stroke: var(--v, #000); }
+    .hl { stroke: var(--h, #fff); }
+    .f1l { stroke: var(--f1, var(--v, #000)); }
+    .f2l { stroke: var(--f2, var(--v, #000)); }
+    .f3l { stroke: var(--f3, var(--v, #000)); }
+  </style>
+
+  <rect class="h" width="400" height="400"/>
+
+  <!-- Flossen, Füße, Körper, Locke -->
+  <ellipse class="v" cx="106" cy="228" rx="22" ry="62" transform="rotate(18 106 228)"/>
+  <ellipse class="v" cx="294" cy="228" rx="22" ry="62" transform="rotate(-18 294 228)"/>
+  <ellipse class="f1" cx="168" cy="334" rx="28" ry="13"/>
+  <ellipse class="f1" cx="232" cy="334" rx="28" ry="13"/>
+  <ellipse class="v" cx="200" cy="208" rx="96" ry="124"/>
+  <path class="vl" stroke-width="9" d="M198 88 C192 68 214 60 218 74"/>
+
+  <!-- Weiße Gesichtsmaske und Bauch -->
+  <g class="h">
+    <circle cx="176" cy="150" r="34"/>
+    <circle cx="224" cy="150" r="34"/>
+    <ellipse cx="200" cy="244" rx="68" ry="84"/>
+  </g>
+
+  <!-- Augen und Schnabel -->
+  <circle class="v" cx="178" cy="148" r="14"/>
+  <circle class="v" cx="222" cy="148" r="14"/>
+  <circle class="h" cx="174" cy="144" r="4.5"/>
+  <circle class="h" cx="218" cy="144" r="4.5"/>
+  <path class="f1" d="M186 168 L214 168 L200 188 Z"/>
+  <path class="f1l" stroke-width="8" d="M186 168 L214 168 L200 188 Z"/>
+</svg>

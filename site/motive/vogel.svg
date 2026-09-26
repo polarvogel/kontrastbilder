@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <style>
+    /* Farbrollen (siehe README). Die Fallback-Werte gelten nur beim direkten Öffnen der Datei. */
+    .v { fill: var(--v, #000); }
+    .h { fill: var(--h, #fff); }
+    .f1 { fill: var(--f1, var(--v, #000)); }
+    .f2 { fill: var(--f2, var(--v, #000)); }
+    .f3 { fill: var(--f3, var(--v, #000)); }
+    .vl, .hl, .f1l, .f2l, .f3l { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .vl { stroke: var(--v, #000); }
+    .hl { stroke: var(--h, #fff); }
+    .f1l { stroke: var(--f1, var(--v, #000)); }
+    .f2l { stroke: var(--f2, var(--v, #000)); }
+    .f3l { stroke: var(--f3, var(--v, #000)); }
+
+    /* Flügel hebt sich in 3,5 s über den Rücken und senkt sich wieder */
+    .fluegel { transform-origin: 222px 196px; animation: schlagen 3.5s ease-in-out infinite alternate; }
+    @keyframes schlagen { to { transform: rotate(38deg); } }
+  </style>
+
+  <rect class="h" width="400" height="400"/>
+
+  <!-- Ast und Beine -->
+  <path class="f3l" stroke-width="14" d="M108 316 L292 316"/>
+  <g class="f1l" stroke-width="8">
+    <path d="M182 280 L178 312"/>
+    <path d="M212 280 L212 312"/>
+  </g>
+
+  <!-- Schwanz, Körper, Kopf, Schopf, Schnabel -->
+  <path class="v" d="M118 200 L62 166 Q54 198 74 226 Z"/>
+  <path class="vl" stroke-width="14" d="M118 200 L62 166 Q54 198 74 226 Z"/>
+  <ellipse class="v" cx="192" cy="222" rx="86" ry="66"/>
+  <circle class="v" cx="252" cy="162" r="50"/>
+  <path class="vl" stroke-width="9" d="M246 114 C240 96 262 88 268 102"/>
+  <path class="f1" d="M294 150 L336 164 L294 178 Z"/>
+  <path class="f1l" stroke-width="10" d="M294 150 L336 164 L294 178 Z"/>
+
+  <!-- Auge -->
+  <circle class="h" cx="264" cy="150" r="15"/>
+  <circle class="v" cx="267" cy="151" r="9"/>
+  <circle class="h" cx="263" cy="147" r="3.5"/>
+
+  <!-- Flügel mit weißer Kante -->
+  <g class="fluegel">
+    <ellipse class="hl" stroke-width="10" cx="176" cy="210" rx="60" ry="32" transform="rotate(-12 176 210)"/>
+    <ellipse class="v" cx="176" cy="210" rx="60" ry="32" transform="rotate(-12 176 210)"/>
+  </g>
+</svg>

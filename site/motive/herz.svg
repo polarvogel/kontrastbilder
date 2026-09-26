@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <style>
+    /* Farbrollen (siehe README). Die Fallback-Werte gelten nur beim direkten Öffnen der Datei. */
+    .v { fill: var(--v, #000); }
+    .h { fill: var(--h, #fff); }
+    .f1 { fill: var(--f1, var(--v, #000)); }
+    .f2 { fill: var(--f2, var(--v, #000)); }
+    .f3 { fill: var(--f3, var(--v, #000)); }
+    .vl, .hl, .f1l, .f2l, .f3l { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .vl { stroke: var(--v, #000); }
+    .hl { stroke: var(--h, #fff); }
+    .f1l { stroke: var(--f1, var(--v, #000)); }
+    .f2l { stroke: var(--f2, var(--v, #000)); }
+    .f3l { stroke: var(--f3, var(--v, #000)); }
+
+    /* Herz "atmet": wird in 4 s minimal größer und wieder kleiner */
+    .herz { transform-origin: 200px 205px; animation: atmen 4s ease-in-out infinite alternate; }
+    @keyframes atmen { to { transform: scale(1.07); } }
+  </style>
+
+  <rect class="h" width="400" height="400"/>
+
+  <g class="herz">
+    <!-- Fläche und gleichfarbige Kontur, die die Spitze abrundet -->
+    <path class="f1" d="M200 318 C150 286 72 236 72 166 C72 120 104 92 142 92 C170 92 190 108 200 128 C210 108 230 92 258 92 C296 92 328 120 328 166 C328 236 250 286 200 318 Z"/>
+    <path class="f1l" stroke-width="16" d="M200 318 C150 286 72 236 72 166 C72 120 104 92 142 92 C170 92 190 108 200 128 C210 108 230 92 258 92 C296 92 328 120 328 166 C328 236 250 286 200 318 Z"/>
+    <!-- Gesicht -->
+    <circle class="h" cx="166" cy="172" r="13"/>
+    <circle class="h" cx="234" cy="172" r="13"/>
+    <path class="hl" stroke-width="11" d="M170 214 Q200 240 230 214"/>
+  </g>
+</svg>

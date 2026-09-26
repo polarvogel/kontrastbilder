@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <style>
+    /* Farbrollen (siehe README). Die Fallback-Werte gelten nur beim direkten Öffnen der Datei. */
+    .v { fill: var(--v, #000); }
+    .h { fill: var(--h, #fff); }
+    .f1 { fill: var(--f1, var(--v, #000)); }
+    .f2 { fill: var(--f2, var(--v, #000)); }
+    .f3 { fill: var(--f3, var(--v, #000)); }
+    .vl, .hl, .f1l, .f2l, .f3l { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .vl { stroke: var(--v, #000); }
+    .hl { stroke: var(--h, #fff); }
+    .f1l { stroke: var(--f1, var(--v, #000)); }
+    .f2l { stroke: var(--f2, var(--v, #000)); }
+    .f3l { stroke: var(--f3, var(--v, #000)); }
+
+    /* Blütenblätter ziehen sich in 6 s zur Mitte zusammen und öffnen sich wieder */
+    .blaetter { transform-origin: 200px 136px; animation: schliessen 6s ease-in-out infinite alternate; }
+    @keyframes schliessen { to { transform: scale(0.8); } }
+  </style>
+
+  <rect class="h" width="400" height="400"/>
+
+  <!-- Stängel und Blätter -->
+  <path class="f3l" stroke-width="16" d="M200 236 C204 270 196 300 200 332"/>
+  <ellipse class="f3" cx="168" cy="298" rx="30" ry="13" transform="rotate(-28 168 298)"/>
+  <ellipse class="f3" cx="232" cy="278" rx="30" ry="13" transform="rotate(28 232 278)"/>
+
+  <!-- Blütenblätter -->
+  <g class="blaetter f1">
+    <circle cx="200.0" cy="70.0" r="28"/>
+    <circle cx="257.2" cy="103.0" r="28"/>
+    <circle cx="257.2" cy="169.0" r="28"/>
+    <circle cx="200.0" cy="202.0" r="28"/>
+    <circle cx="142.8" cy="169.0" r="28"/>
+    <circle cx="142.8" cy="103.0" r="28"/>
+  </g>
+
+  <!-- Weiße Kante trennt die Mitte von den Blättern, Mitte mit Gesicht -->
+  <circle class="hl" stroke-width="10" cx="200" cy="136" r="41"/>
+  <circle class="f2" cx="200" cy="136" r="36"/>
+  <circle class="h" cx="188" cy="130" r="5.5"/>
+  <circle class="h" cx="212" cy="130" r="5.5"/>
+  <path class="hl" stroke-width="5.5" d="M188 146 Q200 155 212 146"/>
+</svg>

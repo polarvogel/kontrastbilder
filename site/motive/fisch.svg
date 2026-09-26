@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <style>
+    /* Farbrollen (siehe README). Die Fallback-Werte gelten nur beim direkten Öffnen der Datei. */
+    .v { fill: var(--v, #000); }
+    .h { fill: var(--h, #fff); }
+    .f1 { fill: var(--f1, var(--v, #000)); }
+    .f2 { fill: var(--f2, var(--v, #000)); }
+    .f3 { fill: var(--f3, var(--v, #000)); }
+    .vl, .hl, .f1l, .f2l, .f3l { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .vl { stroke: var(--v, #000); }
+    .hl { stroke: var(--h, #fff); }
+    .f1l { stroke: var(--f1, var(--v, #000)); }
+    .f2l { stroke: var(--f2, var(--v, #000)); }
+    .f3l { stroke: var(--f3, var(--v, #000)); }
+
+    /* Fisch schwimmt in 7 s ein Stück hin und zurück, Schwanzflosse wedelt in 3 s */
+    .fisch { animation: schwimmen 7s ease-in-out infinite alternate; }
+    .schwanz { transform-origin: 252px 200px; animation: wedeln 3s ease-in-out infinite alternate; }
+    @keyframes schwimmen {
+      from { transform: translate(-14px, 4px); }
+      to { transform: translate(14px, -4px); }
+    }
+    @keyframes wedeln {
+      from { transform: rotate(-12deg); }
+      to { transform: rotate(12deg); }
+    }
+  </style>
+
+  <rect class="h" width="400" height="400"/>
+
+  <!-- Luftblasen -->
+  <circle class="vl" stroke-width="8" cx="92" cy="130" r="10"/>
+  <circle class="vl" stroke-width="8" cx="72" cy="100" r="13"/>
+
+  <g class="fisch">
+    <g class="schwanz f1">
+      <path d="M252 200 L312 152 Q326 200 312 248 Z"/>
+      <path class="f1l" stroke-width="16" d="M252 200 L312 152 Q326 200 312 248 Z"/>
+    </g>
+    <!-- Rückenflosse und Körper -->
+    <path class="f1" d="M146 150 Q176 108 222 146 Z"/>
+    <path class="f1l" stroke-width="14" d="M146 150 Q176 108 222 146 Z"/>
+    <ellipse class="f1" cx="170" cy="200" rx="92" ry="62"/>
+    <!-- Kiemenbogen und Schuppen als Aussparung -->
+    <path class="hl" stroke-width="9" d="M136 158 Q158 200 136 242"/>
+    <path class="hl" stroke-width="9" d="M184 178 Q198 190 184 202"/>
+    <path class="hl" stroke-width="9" d="M184 212 Q198 224 184 236"/>
+    <path class="hl" stroke-width="9" d="M214 194 Q228 206 214 218"/>
+    <!-- Auge und Mund -->
+    <circle class="h" cx="112" cy="188" r="17"/>
+    <circle class="v" cx="109" cy="189" r="10"/>
+    <circle class="h" cx="105" cy="185" r="3.5"/>
+    <path class="hl" stroke-width="7" d="M86 214 Q96 222 106 212"/>
+  </g>
+</svg>

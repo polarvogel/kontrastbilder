@@ -15,5 +15,13 @@
   </style>
 
   <rect class="h" width="400" height="400"/>
-  <circle class="v" cx="200" cy="200" r="140"/>
+
+  <!-- Schwarzes Brett 3 × 3, die vier weißen Felder als abgerundete Aussparungen -->
+  <rect class="v" x="62" y="62" width="276" height="276" rx="30"/>
+  <g class="h">
+    <rect x="164" y="72" width="72" height="72" rx="18"/>
+    <rect x="72" y="164" width="72" height="72" rx="18"/>
+    <rect x="256" y="164" width="72" height="72" rx="18"/>
+    <rect x="164" y="256" width="72" height="72" rx="18"/>
+  </g>
 </svg>

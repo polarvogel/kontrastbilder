@@ -15,5 +15,11 @@
   </style>
 
   <rect class="h" width="400" height="400"/>
-  <circle class="v" cx="200" cy="200" r="140"/>
+
+  <!-- Drei dicke Wellenlinien mit runden Enden -->
+  <g class="vl" stroke-width="38">
+    <path d="M78 124 q30.5 -32 61 0 t61 0 t61 0 t61 0"/>
+    <path d="M78 200 q30.5 -32 61 0 t61 0 t61 0 t61 0"/>
+    <path d="M78 276 q30.5 -32 61 0 t61 0 t61 0 t61 0"/>
+  </g>
 </svg>

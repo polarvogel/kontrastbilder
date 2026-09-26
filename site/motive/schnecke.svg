@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <style>
+    /* Farbrollen (siehe README). Die Fallback-Werte gelten nur beim direkten Öffnen der Datei. */
+    .v { fill: var(--v, #000); }
+    .h { fill: var(--h, #fff); }
+    .f1 { fill: var(--f1, var(--v, #000)); }
+    .f2 { fill: var(--f2, var(--v, #000)); }
+    .f3 { fill: var(--f3, var(--v, #000)); }
+    .vl, .hl, .f1l, .f2l, .f3l { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .vl { stroke: var(--v, #000); }
+    .hl { stroke: var(--h, #fff); }
+    .f1l { stroke: var(--f1, var(--v, #000)); }
+    .f2l { stroke: var(--f2, var(--v, #000)); }
+    .f3l { stroke: var(--f3, var(--v, #000)); }
+  </style>
+
+  <rect class="h" width="400" height="400"/>
+
+  <!-- Gezeichnet in freien Koordinaten, hier zentriert -->
+  <g transform="translate(-4 -6)">
+
+  <!-- Körper: Fuß und aufgerichteter Kopf -->
+  <g class="v">
+    <rect x="76" y="264" width="250" height="38" rx="19"/>
+    <rect x="268" y="206" width="58" height="90" rx="29"/>
+  </g>
+  <!-- Fühler mit Augen -->
+  <path class="vl" stroke-width="9" d="M286 214 L274 166"/>
+  <path class="vl" stroke-width="9" d="M308 214 L320 168"/>
+  <circle class="v" cx="274" cy="164" r="12"/>
+  <circle class="v" cx="320" cy="166" r="12"/>
+  <circle class="h" cx="270" cy="160" r="4"/>
+  <circle class="h" cx="316" cy="162" r="4"/>
+  <path class="hl" stroke-width="6" d="M288 244 Q298 252 310 244"/>
+
+  <!-- Haus mit weißer Kante und Spirale -->
+  <circle class="hl" stroke-width="12" cx="180" cy="196" r="80"/>
+  <circle class="f1" cx="180" cy="196" r="80"/>
+  <path class="hl" stroke-width="12" d="M180.0 196.0 L180.8 196.2 L181.5 196.6 L182.0 197.4 L182.3 198.3 L182.3 199.4 L181.9 200.5 L181.1 201.6 L180.0 202.5 L178.6 203.2 L176.9 203.5 L175.0 203.4 L173.1 202.9 L171.2 201.9 L169.5 200.4 L168.0 198.4 L167.0 196.0 L166.5 193.3 L166.5 190.4 L167.2 187.4 L168.5 184.5 L170.5 181.8 L173.2 179.5 L176.4 177.7 L180.0 176.5 L184.0 176.1 L188.1 176.5 L192.2 177.8 L196.1 179.9 L199.6 182.9 L202.5 186.7 L204.7 191.1 L206.0 196.0 L206.3 201.2 L205.5 206.6 L203.6 211.8 L200.7 216.7 L196.7 221.0 L191.8 224.5 L186.2 227.1 L180.0 228.5 L173.5 228.7 L166.9 227.5 L160.6 225.0 L154.7 221.3 L149.6 216.3 L145.5 210.3 L142.5 203.5 L141.0 196.0 L141.0 188.2 L142.5 180.5 L145.5 173.0 L150.1 166.1 L156.1 160.2 L163.2 155.5 L171.3 152.2 L180.0 150.5 L189.0 150.6 L198.0 152.5 L206.6 156.1 L214.5 161.5 L221.2 168.5 L226.5 176.7 L230.2 186.0 L232.0 196.0 L231.8 206.3 L229.5 216.5 L225.3 226.2 L219.1 235.1 L211.1 242.6 L201.8 248.5"/>
+
+  </g>
+</svg>

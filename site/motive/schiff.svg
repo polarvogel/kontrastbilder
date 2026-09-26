@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <style>
+    /* Farbrollen (siehe README). Die Fallback-Werte gelten nur beim direkten Öffnen der Datei. */
+    .v { fill: var(--v, #000); }
+    .h { fill: var(--h, #fff); }
+    .f1 { fill: var(--f1, var(--v, #000)); }
+    .f2 { fill: var(--f2, var(--v, #000)); }
+    .f3 { fill: var(--f3, var(--v, #000)); }
+    .vl, .hl, .f1l, .f2l, .f3l { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .vl { stroke: var(--v, #000); }
+    .hl { stroke: var(--h, #fff); }
+    .f1l { stroke: var(--f1, var(--v, #000)); }
+    .f2l { stroke: var(--f2, var(--v, #000)); }
+    .f3l { stroke: var(--f3, var(--v, #000)); }
+
+    /* Schiff schaukelt in 5 s um den Kiel, die Wellen schwappen in 6 s hin und her */
+    .schiff { transform-origin: 200px 290px; animation: schaukeln 5s ease-in-out infinite alternate; }
+    .wellen { animation: schwappen 6s ease-in-out infinite alternate; }
+    @keyframes schaukeln {
+      from { transform: rotate(-5deg); }
+      to { transform: rotate(5deg); }
+    }
+    @keyframes schwappen {
+      from { transform: translateX(-8px); }
+      to { transform: translateX(8px); }
+    }
+  </style>
+
+  <rect class="h" width="400" height="400"/>
+
+  <g class="schiff">
+    <!-- Mast, Fahne, Segel -->
+    <path class="vl" stroke-width="10" d="M200 236 L200 100"/>
+    <path class="f3" d="M200 94 L230 104 L200 114 Z"/>
+    <path class="f3l" stroke-width="8" d="M200 94 L230 104 L200 114 Z"/>
+    <path class="v" d="M208 112 L208 214 L282 214 Z"/>
+    <path class="vl" stroke-width="12" d="M208 112 L208 214 L282 214 Z"/>
+    <path class="v" d="M192 132 L192 214 L132 214 Z"/>
+    <path class="vl" stroke-width="12" d="M192 132 L192 214 L132 214 Z"/>
+    <!-- Rumpf mit Bullaugen -->
+    <path class="f1" d="M112 236 L288 236 L258 282 L142 282 Z"/>
+    <path class="f1l" stroke-width="14" d="M112 236 L288 236 L258 282 L142 282 Z"/>
+    <circle class="h" cx="168" cy="258" r="9"/>
+    <circle class="h" cx="200" cy="258" r="9"/>
+    <circle class="h" cx="232" cy="258" r="9"/>
+  </g>
+
+  <!-- Wellen, jeweils mit weißer Kante, damit sie sich vom Rumpf abheben -->
+  <g class="wellen">
+    <path class="hl" stroke-width="36" d="M76 300 q16 -16 32 0 t32 0 t32 0 t32 0 t32 0 t32 0 t32 0 t32 0"/>
+    <path class="f2l" stroke-width="22" d="M76 300 q16 -16 32 0 t32 0 t32 0 t32 0 t32 0 t32 0 t32 0 t32 0"/>
+    <path class="hl" stroke-width="36" d="M92 334 q16 -16 32 0 t32 0 t32 0 t32 0 t32 0 t32 0 t32 0"/>
+    <path class="f2l" stroke-width="22" d="M92 334 q16 -16 32 0 t32 0 t32 0 t32 0 t32 0 t32 0 t32 0"/>
+  </g>
+</svg>

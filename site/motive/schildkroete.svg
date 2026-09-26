@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <style>
+    /* Farbrollen (siehe README). Die Fallback-Werte gelten nur beim direkten Öffnen der Datei. */
+    .v { fill: var(--v, #000); }
+    .h { fill: var(--h, #fff); }
+    .f1 { fill: var(--f1, var(--v, #000)); }
+    .f2 { fill: var(--f2, var(--v, #000)); }
+    .f3 { fill: var(--f3, var(--v, #000)); }
+    .vl, .hl, .f1l, .f2l, .f3l { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .vl { stroke: var(--v, #000); }
+    .hl { stroke: var(--h, #fff); }
+    .f1l { stroke: var(--f1, var(--v, #000)); }
+    .f2l { stroke: var(--f2, var(--v, #000)); }
+    .f3l { stroke: var(--f3, var(--v, #000)); }
+
+    /* Kopf kommt in 5 s aus dem Panzer und zieht sich wieder zurück */
+    .kopf { animation: einziehen 5s ease-in-out infinite alternate; }
+    @keyframes einziehen { to { transform: translateX(-50px); } }
+  </style>
+
+  <rect class="h" width="400" height="400"/>
+
+  <!-- Gezeichnet in freien Koordinaten, hier zentriert -->
+  <g transform="translate(-17 -22)">
+
+  <!-- Kopf liegt hinter dem Panzer, damit er darunter verschwinden kann -->
+  <g class="kopf">
+    <path class="vl" stroke-width="34" d="M288 248 L318 238"/>
+    <circle class="v" cx="330" cy="232" r="30"/>
+    <circle class="h" cx="338" cy="224" r="9"/>
+    <circle class="v" cx="339" cy="225" r="5"/>
+    <path class="hl" stroke-width="5" d="M336 246 Q346 252 356 242"/>
+  </g>
+
+  <!-- Beine und Schwanz -->
+  <rect class="v" x="116" y="256" width="32" height="42" rx="15"/>
+  <rect class="v" x="250" y="256" width="32" height="42" rx="15"/>
+  <path class="vl" stroke-width="12" d="M100 262 L78 272"/>
+
+  <!-- Panzer mit Rand und Muster -->
+  <rect class="f1" x="88" y="244" width="224" height="24" rx="12"/>
+  <path class="f1" d="M96 250 A104 104 0 0 1 304 250 Z"/>
+  <path class="hl" stroke-width="8" d="M100 252 L300 252"/>
+  <g class="h">
+    <circle cx="200" cy="204" r="24"/>
+    <circle cx="146" cy="228" r="16"/>
+    <circle cx="254" cy="228" r="16"/>
+    <circle cx="158" cy="180" r="12"/>
+    <circle cx="242" cy="180" r="12"/>
+  </g>
+
+  </g>
+</svg>

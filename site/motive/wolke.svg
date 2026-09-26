@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <style>
+    /* Farbrollen (siehe README). Die Fallback-Werte gelten nur beim direkten Öffnen der Datei. */
+    .v { fill: var(--v, #000); }
+    .h { fill: var(--h, #fff); }
+    .f1 { fill: var(--f1, var(--v, #000)); }
+    .f2 { fill: var(--f2, var(--v, #000)); }
+    .f3 { fill: var(--f3, var(--v, #000)); }
+    .vl, .hl, .f1l, .f2l, .f3l { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .vl { stroke: var(--v, #000); }
+    .hl { stroke: var(--h, #fff); }
+    .f1l { stroke: var(--f1, var(--v, #000)); }
+    .f2l { stroke: var(--f2, var(--v, #000)); }
+    .f3l { stroke: var(--f3, var(--v, #000)); }
+
+    /*
+     * Tropfen fallen in 6 s aus der Wolke in die Pfütze. Anfang und Ende liegen
+     * hinter Wolke bzw. Pfütze, deshalb ist der Neustart unsichtbar.
+     * Ohne Animation (Druck) hängen die Tropfen in verschiedenen Höhen.
+     */
+    .tropfen { animation: fallen 6s linear infinite; }
+    .t1 { transform: translateY(75px); }
+    .t2 { transform: translateY(95px); animation-delay: -2s; }
+    .t3 { transform: translateY(52px); animation-delay: -4s; }
+    @keyframes fallen {
+      from { transform: translateY(0); }
+      to { transform: translateY(148px); }
+    }
+  </style>
+
+  <rect class="h" width="400" height="400"/>
+
+  <!-- Tropfen, hinter Wolke und Pfütze gezeichnet -->
+  <g class="f1">
+    <g transform="translate(160 170)"><g class="tropfen t1"><path d="M0 -26 C8 -13 17 -3 17 8 A17 17 0 0 1 -17 8 C-17 -3 -8 -13 0 -26 Z"/></g></g>
+    <g transform="translate(200 170)"><g class="tropfen t2"><path d="M0 -26 C8 -13 17 -3 17 8 A17 17 0 0 1 -17 8 C-17 -3 -8 -13 0 -26 Z"/></g></g>
+    <g transform="translate(240 170)"><g class="tropfen t3"><path d="M0 -26 C8 -13 17 -3 17 8 A17 17 0 0 1 -17 8 C-17 -3 -8 -13 0 -26 Z"/></g></g>
+  </g>
+
+  <!-- Pfütze -->
+  <ellipse class="f1" cx="200" cy="318" rx="98" ry="28"/>
+
+  <!-- Wolke mit fröhlichem Gesicht -->
+  <g class="v">
+    <circle cx="150" cy="150" r="44"/>
+    <circle cx="204" cy="124" r="58"/>
+    <circle cx="256" cy="152" r="42"/>
+    <rect x="108" y="140" width="190" height="56" rx="28"/>
+  </g>
+  <path class="hl" stroke-width="8" d="M168 154 Q179 142 190 154"/>
+  <path class="hl" stroke-width="8" d="M214 154 Q225 142 236 154"/>
+  <path class="hl" stroke-width="8" d="M190 174 Q202 184 214 174"/>
+</svg>

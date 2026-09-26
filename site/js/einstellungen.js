@@ -5,7 +5,7 @@
  * @property {boolean | null} animation  null = Systemeinstellung (prefers-reduced-motion)
  * @property {number} tempo              Faktor auf alle Animationen
  * @property {boolean} invertiert
- * @property {number} autoWeiter         Sekunden bis zum nächsten Motiv, 0 = aus
+ * @property {number} autoWeiter         Sekunden bis zum nächsten Motiv, 0 = aus (60, 180, 300, 600)
  * @property {number} sitzung            Minuten bis zum Ausblenden, 0 = aus
  * @property {boolean} touchNavigation   Tippen links/rechts und Wischen wechselt das Motiv
  * @property {string} letztesMotiv       id des zuletzt gezeigten Motivs
@@ -14,6 +14,13 @@
 const SCHLUESSEL = "kontrastbilder.einstellungen.v1";
 
 export const TEMPO_STUFEN = [0.5, 0.75, 1, 1.25, 1.5, 2];
+
+/* Erlaubte Werte der Auswahlfelder. Andere gespeicherte Werte fallen auf den Standard zurück. */
+const ERLAUBT = {
+  tempo: TEMPO_STUFEN,
+  autoWeiter: [0, 60, 180, 300, 600],
+  sitzung: [0, 3, 5, 10],
+};
 
 const wenigerBewegung = window.matchMedia("(prefers-reduced-motion: reduce)");
 
@@ -45,7 +52,10 @@ export function laden() {
         continue;
       }
       const erwartet = typeof einstellungen[/** @type {keyof Einstellungen} */ (schluessel)];
-      const passt = typeof wert === erwartet || (schluessel === "animation" && typeof wert === "boolean");
+      const liste = ERLAUBT[/** @type {keyof typeof ERLAUBT} */ (schluessel)];
+      const passt =
+        (typeof wert === erwartet || (schluessel === "animation" && typeof wert === "boolean")) &&
+        (!liste || liste.includes(wert));
       if (passt) {
         /** @type {any} */ (einstellungen)[schluessel] = wert;
       }

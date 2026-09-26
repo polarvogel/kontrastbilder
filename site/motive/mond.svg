@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <style>
+    /* Farbrollen (siehe README). Die Fallback-Werte gelten nur beim direkten Öffnen der Datei. */
+    .v { fill: var(--v, #000); }
+    .h { fill: var(--h, #fff); }
+    .f1 { fill: var(--f1, var(--v, #000)); }
+    .f2 { fill: var(--f2, var(--v, #000)); }
+    .f3 { fill: var(--f3, var(--v, #000)); }
+    .vl, .hl, .f1l, .f2l, .f3l { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .vl { stroke: var(--v, #000); }
+    .hl { stroke: var(--h, #fff); }
+    .f1l { stroke: var(--f1, var(--v, #000)); }
+    .f2l { stroke: var(--f2, var(--v, #000)); }
+    .f3l { stroke: var(--f3, var(--v, #000)); }
+
+    /*
+     * Der Stern wandert in 8 s auf einem Bogen um den Mond durch die offene Seite
+     * der Sichel und zurück. Die innere Gruppe dreht gegen, damit er aufrecht bleibt.
+     */
+    .bahn { transform-origin: 180px 200px; animation: wandern 8s ease-in-out infinite alternate; }
+    .stern { transform-origin: 285.2px 161.7px; animation: aufrecht 8s ease-in-out infinite alternate; }
+    @keyframes wandern {
+      from { transform: rotate(-30deg); }
+      to { transform: rotate(30deg); }
+    }
+    @keyframes aufrecht {
+      from { transform: rotate(30deg); }
+      to { transform: rotate(-30deg); }
+    }
+  </style>
+
+  <rect class="h" width="400" height="400"/>
+
+  <!-- Sichel: großer Kreis minus versetzter Kreis -->
+  <path class="f1" d="M208.1 83.3 A120 120 0 1 0 280.8 265.1 A98 98 0 1 1 208.1 83.3 Z"/>
+  <!-- Schlafendes Gesicht -->
+  <path class="hl" stroke-width="9" d="M86 178 Q100 192 114 178"/>
+  <path class="hl" stroke-width="9" d="M100 230 Q114 242 128 228"/>
+
+  <g class="bahn">
+    <g class="stern">
+      <!-- Weiße Kante hält Abstand zur Sichel -->
+      <path class="hl" stroke-width="22" d="M285.2 134.7 L292.8 151.2 L310.9 153.4 L297.6 165.7 L301.1 183.5 L285.2 174.7 L269.3 183.5 L272.8 165.7 L259.5 153.4 L277.6 151.2 Z"/>
+      <path class="f2" d="M285.2 134.7 L292.8 151.2 L310.9 153.4 L297.6 165.7 L301.1 183.5 L285.2 174.7 L269.3 183.5 L272.8 165.7 L259.5 153.4 L277.6 151.2 Z"/>
+      <path class="f2l" stroke-width="8" d="M285.2 134.7 L292.8 151.2 L310.9 153.4 L297.6 165.7 L301.1 183.5 L285.2 174.7 L269.3 183.5 L272.8 165.7 L259.5 153.4 L277.6 151.2 Z"/>
+    </g>
+  </g>
+</svg>

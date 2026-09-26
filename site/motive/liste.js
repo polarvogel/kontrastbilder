@@ -5,6 +5,7 @@
  *
  * Neues Motiv: SVG-Datei in diesen Ordner legen und hier eine Zeile ergänzen.
  * Die Reihenfolge hier ist die Reihenfolge in der Anzeige und im Druck.
+ * Sortiert grob von einfachen Formen zu Tieren mit mehr Details.
  *
  * Felder:
  *   datei      Dateiname im Ordner motive/ (Pflicht)
@@ -15,7 +16,24 @@
  * @type {import("../js/motive.js").MotivEintrag[]}
  */
 export default [
-  { datei: "sonne.svg", name: "Sonne" },
-  { datei: "elefant.svg", name: "Elefant" },
   { datei: "kreis.svg", name: "Großer Kreis" },
+  { datei: "ringe.svg", name: "Ringe" },
+  { datei: "streifen.svg", name: "Wellenstreifen" },
+  { datei: "schachbrett.svg", name: "Schachbrett" },
+  { datei: "herz.svg", name: "Herz" },
+  { datei: "sonne.svg", name: "Sonne" },
+  { datei: "mond.svg", name: "Mond und Stern" },
+  { datei: "gesicht.svg", name: "Gesicht" },
+  { datei: "blume.svg", name: "Blume" },
+  { datei: "wolke.svg", name: "Regenwolke" },
+  { datei: "fisch.svg", name: "Fisch" },
+  { datei: "qualle.svg", name: "Qualle" },
+  { datei: "schiff.svg", name: "Schiff" },
+  { datei: "vogel.svg", name: "Vogel" },
+  { datei: "eule.svg", name: "Eule" },
+  { datei: "schnecke.svg", name: "Schnecke" },
+  { datei: "pinguin.svg", name: "Pinguin" },
+  { datei: "elefant.svg", name: "Elefant" },
+  { datei: "katze.svg", name: "Katze" },
+  { datei: "schildkroete.svg", name: "Schildkröte" },
 ];

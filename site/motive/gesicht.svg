@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <style>
+    /* Farbrollen (siehe README). Die Fallback-Werte gelten nur beim direkten Öffnen der Datei. */
+    .v { fill: var(--v, #000); }
+    .h { fill: var(--h, #fff); }
+    .f1 { fill: var(--f1, var(--v, #000)); }
+    .f2 { fill: var(--f2, var(--v, #000)); }
+    .f3 { fill: var(--f3, var(--v, #000)); }
+    .vl, .hl, .f1l, .f2l, .f3l { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .vl { stroke: var(--v, #000); }
+    .hl { stroke: var(--h, #fff); }
+    .f1l { stroke: var(--f1, var(--v, #000)); }
+    .f2l { stroke: var(--f2, var(--v, #000)); }
+    .f3l { stroke: var(--f3, var(--v, #000)); }
+
+    /* Lächeln wird in 6 s breiter und wieder schmaler */
+    .mund { transform-origin: 200px 256px; animation: laecheln 6s ease-in-out infinite alternate; }
+    @keyframes laecheln { to { transform: scale(1.22, 1.3); } }
+
+    /* Blinzeln etwa alle 9 s, langsam (knapp 1 s) */
+    .auge-links, .auge-rechts { animation: blinzeln 9s ease-in-out infinite; }
+    .auge-links { transform-origin: 156px 190px; }
+    .auge-rechts { transform-origin: 244px 190px; }
+    @keyframes blinzeln {
+      0%, 88%, 100% { transform: scaleY(1); }
+      93% { transform: scaleY(0.1); }
+    }
+  </style>
+
+  <rect class="h" width="400" height="400"/>
+
+  <!-- Kopf als dicker Ring, Ohren, Locke -->
+  <circle class="vl" stroke-width="22" cx="200" cy="208" r="116"/>
+  <circle class="v" cx="80" cy="212" r="24"/>
+  <circle class="v" cx="320" cy="212" r="24"/>
+  <path class="vl" stroke-width="14" d="M200 94 C196 70 222 60 232 74 C240 86 226 98 216 90"/>
+
+  <!-- Augen mit Glanzpunkt -->
+  <g class="auge-links">
+    <circle class="v" cx="156" cy="190" r="26"/>
+    <circle class="h" cx="147" cy="181" r="8"/>
+  </g>
+  <g class="auge-rechts">
+    <circle class="v" cx="244" cy="190" r="26"/>
+    <circle class="h" cx="235" cy="181" r="8"/>
+  </g>
+
+  <!-- Nase und Mund -->
+  <path class="vl" stroke-width="10" d="M192 222 Q200 230 208 222"/>
+  <g class="mund">
+    <path class="vl" stroke-width="14" d="M164 256 Q200 284 236 256"/>
+  </g>
+</svg>

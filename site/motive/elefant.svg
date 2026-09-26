@@ -6,8 +6,12 @@
     .f1 { fill: var(--f1, var(--v, #000)); }
     .f2 { fill: var(--f2, var(--v, #000)); }
     .f3 { fill: var(--f3, var(--v, #000)); }
-    .vl { fill: none; stroke: var(--v, #000); stroke-linecap: round; stroke-linejoin: round; }
-    .hl { fill: none; stroke: var(--h, #fff); stroke-linecap: round; stroke-linejoin: round; }
+    .vl, .hl, .f1l, .f2l, .f3l { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .vl { stroke: var(--v, #000); }
+    .hl { stroke: var(--h, #fff); }
+    .f1l { stroke: var(--f1, var(--v, #000)); }
+    .f2l { stroke: var(--f2, var(--v, #000)); }
+    .f3l { stroke: var(--f3, var(--v, #000)); }
 
     /*
      * Rüssel hebt sich in 7 s und senkt sich in 7 s.

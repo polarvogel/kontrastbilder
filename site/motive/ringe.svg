@@ -15,5 +15,11 @@
   </style>
 
   <rect class="h" width="400" height="400"/>
+
+  <!-- Zielscheibe aus fünf gleich breiten Zonen -->
   <circle class="v" cx="200" cy="200" r="140"/>
+  <circle class="h" cx="200" cy="200" r="112"/>
+  <circle class="v" cx="200" cy="200" r="84"/>
+  <circle class="h" cx="200" cy="200" r="56"/>
+  <circle class="v" cx="200" cy="200" r="28"/>
 </svg>
