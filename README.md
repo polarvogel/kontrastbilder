@@ -141,7 +141,8 @@ Alle Klänge entstehen live im Gerät mit der Web Audio API, es gibt keine Audio
 
 - Mischpult: Jeder Klang lässt sich einzeln anhaken, mehrere laufen gleichzeitig (z. B. Regen + Herzschlag + Xylophon). Der Regler neben jedem Klang bestimmt seinen Anteil. Damit die Summe nicht lauter wird, sinkt der Gesamtpegel mit 1/√Anzahl. Anhaken schaltet den Klang ein, Abhaken des letzten aus. Die Taste `T` und der Lautsprecher-Knopf schalten alle gewählten Klänge an oder aus.
 - Ton startet erst nach der ersten Bedienung (Tippen, Taste), das verlangen alle Browser. War der Klang beim letzten Mal an, beginnt er bei der ersten Berührung.
-- Ein- und Ausblenden dauern 1–2 s, beim Wechsel wird übergeblendet. Ein Begrenzer im Ausgang verhindert Übersteuern.
+- Ein- und Ausblenden dauern 1–2 s, beim Wechsel wird übergeblendet.
+- Pegel: Die Klangdateien sind untereinander auf etwa −20 dB Effektivwert abgeglichen. Der Ausgang hebt um 10 dB an (`ANHEBUNG_DB` in `js/klang.js`), ein sanfter Kompressor und eine weiche Kappe verhindern Übersteuern. Bei 100 % liegen die Klänge damit bei etwa −9 bis −14 dB, ähnlich laut wie Musik.
 - Der Klang läuft nach dem Sitzungs-Timer weiter (zum Einschlafen).
 - Hintergrund und Sperrbildschirm: Die Seite meldet sich als Medienwiedergabe (`navigator.audioSession.type = "playback"`, Safari ab 16.4, im Hintergrund ab iOS 17.5), startet dazu ein stilles Audio-Element in Schleife und setzt Titel und Play/Pause für den Sperrbildschirm (Media Session API). Nach Unterbrechungen wie Anrufen wird fortgesetzt, sobald das System es erlaubt. Auf echten Geräten noch nicht getestet.
 - Kleine Handylautsprecher geben den tiefen Herzschlag nur leise wieder.

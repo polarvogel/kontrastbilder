@@ -304,6 +304,58 @@ export class KlangGraph {
   }
 }
 
+/*
+ * Ausgangspegel. Die Klangdateien sind untereinander auf etwa -20 dB Effektivwert
+ * abgeglichen (werkzeuge/klangpruefung). Das ist deutlich leiser als Musik oder
+ * Systemklänge, deshalb hebt der Ausgang um ANHEBUNG an. Danach glättet ein sanfter
+ * Kompressor Wellenberge und Anschläge, eine weiche Kappe verhindert hartes Übersteuern.
+ */
+const ANHEBUNG_DB = 10;
+
+/**
+ * Weiche Kennlinie für den WaveShaper: bis 0,8 linear, darüber sanft gegen 0,98.
+ * Der WaveShaper begrenzt seinen Eingang auf ±1, deshalb wird vorher halbiert und
+ * die Kurve deckt Eingangswerte bis ±2 ab.
+ */
+function weicheKappe() {
+  const punkte = 4097;
+  const kurve = new Float32Array(punkte);
+  for (let i = 0; i < punkte; i += 1) {
+    const x = ((i / (punkte - 1)) * 2 - 1) * 2;
+    const betrag = Math.abs(x);
+    const y = betrag <= 0.8 ? betrag : 0.8 + 0.18 * Math.tanh((betrag - 0.8) / 0.18);
+    kurve[i] = Math.sign(x) * y;
+  }
+  return kurve;
+}
+
+/**
+ * Baut die Ausgangskette und gibt ihren Eingang zurück, dessen Verstärkung die
+ * Lautstärke ist (anfangs 0). Kette: Lautstärke → Anhebung → Kompressor → Kappe → Ziel.
+ *
+ * @param {BaseAudioContext} ctx
+ * @param {AudioNode} ziel
+ */
+export function baueAusgang(ctx, ziel) {
+  const lautstaerke = ctx.createGain();
+  lautstaerke.gain.value = 0;
+  const anhebung = ctx.createGain();
+  anhebung.gain.value = 10 ** (ANHEBUNG_DB / 20);
+  const kompressor = ctx.createDynamicsCompressor();
+  kompressor.threshold.value = -12;
+  kompressor.knee.value = 12;
+  kompressor.ratio.value = 4;
+  kompressor.attack.value = 0.01;
+  kompressor.release.value = 0.4;
+  const halbieren = ctx.createGain();
+  halbieren.gain.value = 0.5;
+  const kappe = ctx.createWaveShaper();
+  kappe.curve = weicheKappe();
+  kappe.oversample = "2x";
+  lautstaerke.connect(anhebung).connect(kompressor).connect(halbieren).connect(kappe).connect(ziel);
+  return lautstaerke;
+}
+
 /**
  * Eine halbe Sekunde digitale Stille als WAV (8 kHz, 8 Bit), zur Laufzeit erzeugt.
  * Ein laufendes Medienelement markiert die Seite auf iOS als Medienwiedergabe.
@@ -354,7 +406,7 @@ export class Klangerzeuger {
     this.stille = null;
     /** @type {ReturnType<typeof setInterval> | undefined} */
     this.takt = undefined;
-    this.lautstaerke = 0.5;
+    this.lautstaerke = 0.7;
     this.aktiv = false;
     /* Anzeige auf dem Sperrbildschirm, von der App in der gewählten Sprache gesetzt */
     this.kuenstler = "Kontrastbilder";
@@ -368,7 +420,6 @@ export class Klangerzeuger {
   /*
    * Alles bis zum ersten await läuft noch innerhalb der Bedienung. Safari erlaubt
    * Ton nur dort, deshalb werden Kontext, Stille und resume() hier sofort angestoßen.
-   * Der Begrenzer im Ausgang verhindert, dass sich überlagernde Töne übersteuern.
    */
   async bereit() {
     const sitzung = /** @type {any} */ (navigator).audioSession;
@@ -377,15 +428,7 @@ export class Klangerzeuger {
     }
     if (!this.ctx) {
       this.ctx = new AudioContext({ latencyHint: "playback" });
-      this.haupt = this.ctx.createGain();
-      this.haupt.gain.value = 0;
-      const begrenzer = this.ctx.createDynamicsCompressor();
-      begrenzer.threshold.value = -3;
-      begrenzer.knee.value = 3;
-      begrenzer.ratio.value = 20;
-      begrenzer.attack.value = 0.003;
-      begrenzer.release.value = 0.25;
-      this.haupt.connect(begrenzer).connect(this.ctx.destination);
+      this.haupt = baueAusgang(this.ctx, this.ctx.destination);
       this.ctx.addEventListener("statechange", () => {
         if (this.ctx?.state !== "running") {
           this.fortsetzen();

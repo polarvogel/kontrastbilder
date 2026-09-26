@@ -40,7 +40,7 @@ function standard() {
     ton: false,
     klaenge: [],
     klangAnteile: {},
-    lautstaerke: 0.5,
+    lautstaerke: 0.7,
     sprache: "",
     autoWeiter: 0,
     sitzung: 0,

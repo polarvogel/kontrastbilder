@@ -71,7 +71,7 @@ Für jede Schicht gibt es außerdem:
 - **MUSS**: gültig gegen `werkzeuge/klang.schema.json`. Unbekannte Felder sind Fehler.
 - **MUSS**: `stimme.filter` nur bei `art: "rauschen"`. Für Töne einen Filter an die Schicht hängen.
 - **MUSS**: `streuung` kleiner als `abstand`.
-- **MUSS**: Spitzen unter -1 dB. **SOLL**: unter -3 dB, Effektivwert -20 dB ± 4, damit alle Klänge gleich laut sind.
+- **MUSS**: Spitzen unter -1 dB. **SOLL**: unter -3 dB, Effektivwert -20 dB ± 4, damit alle Klänge gleich laut sind. Das ist der Pegel der Datei. Die App hebt am Ausgang für alle Klänge gleich um 10 dB an, das nicht in die Datei einrechnen.
 - **SOLL**: beruhigend und gleichmäßig. Keine plötzlich lauten Ereignisse, keine Knalle, kein Zischen über 8 kHz als Hauptanteil.
 - **SOLL**: Töne langsam. Mindestens 0,5 s Abstand, besser 1 s oder mehr. Nie mehrere Töne gleichzeitig (keine Akkorde): Ein `muster` mit Tönen nur für kurz nacheinander folgende Anschläge wie „ba-dum“.
 - **SOLL**: Tonhöhen aus einer Pentatonik, dann klingt nichts schief, auch wenn Töne ausklingend überlappen. C-Dur-pentatonisch in MIDI: 60 62 64 67 69 72 74 76 79 81 84. Gut geeigneter Bereich 60–84. Über 88 wird es spitz.
